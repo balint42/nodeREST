@@ -1,0 +1,60 @@
+{
+  "name": "calories",
+  "description": "Web App that allows registered users to log their meals with calories",
+  "version": "0.1.0",
+  "author": {
+    "name": "Balint Morvai",
+    "email": "balint@posteo.de"
+  },
+  "contributors": [],
+  "dependencies": {
+    "bcrypt-nodejs": "0.0.3",
+    "body-parser": "^1.15.1",
+    "connect-flash": "^0.1.1",
+    "connect-mongo": "^1.2.0",
+    "dotenv": "^2.0.0",
+    "ejs": "^2.4.2",
+    "express": "^4.12.4",
+    "express-domain-middleware": "^0.1.0",
+    "express-winston": "^1.4.0",
+    "glob": "^7.0.0",
+    "ip": "^1.1.3",
+    "lodash": "^4.12.0",
+    "moment": "^2.11.1",
+    "momentjs": "^1.1.7",
+    "mongoose": "^4.4.16",
+    "node-uuid": "^1.4.3",
+    "passport": "^0.3.2",
+    "passport-local": "^1.0.0",
+    "request": "2.69.0",
+    "winston": "^2.2.0"
+  },
+  "keywords": [
+    "nutrition",
+    "calories",
+    "meals"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git.toptal.com/Luis-Filipe/balint-morvai"
+  },
+  "main": "index",
+  "devDependencies": {
+    "chai": "^3.4.0",
+    "eslint": "^2.9.0",
+    "eslint-config-airbnb-base": "^3.0.1",
+    "eslint-plugin-import": "^1.7.0",
+    "grunt": "^0.4.5",
+    "grunt-concurrent": "^2.0.4",
+    "grunt-contrib-watch": "^0.6.1",
+    "grunt-env": "^0.4.4",
+    "grunt-eslint": "^18.0.0",
+    "grunt-exec": "^0.4.6",
+    "grunt-jsdoc": "^1.0.0",
+    "grunt-mocha-test": "^0.12.7",
+    "grunt-nodemon": "^0.4.0",
+    "load-grunt-tasks": "^3.2.0",
+    "mocha": "^2.2.1",
+    "supertest": "^1.1.0"
+  }
+}
