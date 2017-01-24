@@ -18,6 +18,18 @@ const commonConfig = {
   port: process.env.PORT || 3000,
   logLevel: process.env.LOG_LEVEL || 'debug',
   mongoUrl: process.env.MONGO_URL,
+  mongooseOpt: {
+    server: {
+      reconnectTries: Number.MAX_VALUE,
+      reconnectInterval: 1000,
+      socketOptions: { keepAlive: 120 },
+    },
+    replset: {
+      reconnectTries: Number.MAX_VALUE,
+      reconnectInterval: 1000,
+      socketOptions: { keepAlive: 120 },
+    },
+  },
   roles: {
     user: 1,
     manager: 2,
@@ -26,6 +38,9 @@ const commonConfig = {
   adminId: '57543795c5e18d4310a7db1f',
   adminMail: process.env.ADMIN_MAIL,
   adminPassword: process.env.ADMIN_PASSWORD,
+  accessTokenSecret: process.env.ACCESS_TOKEN_SECRET,
+  refreshTokenSecret: process.env.REFRESH_TOKEN_SECRET,
+  tokenIssuer: 'expensesApp',
 };
 
 const config = {
