@@ -5,14 +5,17 @@ const glob = require('glob');
 const logger = require('./utils/logger');
 const expressLogger = require('./utils/expressLogger');
 const uuid = require('node-uuid');
-const flash = require('connect-flash');
 const bodyParser = require('body-parser');
 const passport = require('passport');
+const bearerToken = require('express-bearer-token');
 
 // id to tag each process
 const PROCESS_ID_HEADER = 'X-Process-Id';
 
 module.exports = function(app) {
+  // get bearer token as defined in RFC6750 & if found set it as req.token
+  app.use(bearerToken());
+
   // views path & engine
   app.set('views', `${config.root}/app/views`);
   app.set('view engine', 'ejs');
@@ -41,7 +44,6 @@ module.exports = function(app) {
   // needed for authentication via passport
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(bodyParser.json());
-  app.use(flash());
   app.use(passport.initialize());
 
   // request and response logger
@@ -50,7 +52,7 @@ module.exports = function(app) {
   // make sure all requests accept json
   app.use((req, res, next) => {
     if (! req.accepts('json')) {
-      const err = new Error('Not Acceptable');
+      const err = new VError('Not Acceptable');
       err.status = 406;
       next(err);
     } else {
@@ -73,7 +75,7 @@ module.exports = function(app) {
   // 404 handler
   // since this is last middleware assume 404 if we got until here
   app.use((req, res, next) => {
-    const err = new Error('Not Found');
+    const err = new VError('Not Found');
     err.status = 404;
     next(err);
   });
