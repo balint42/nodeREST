@@ -112,7 +112,7 @@ describe('/v1/auth', function() {
     });
 
     const path5 = '/v1/auth';
-    const query5 = { email: `footest${_.random(1, 9999)}`, password: 'foobar57546859e1a36d1824e80cb9' };
+    const query5 = { email: `footest${_.random(1, 9999)}@google.com`, password: 'foobar57546859e1a36d1824e80cb9' };
     let testId = null;
     it(`POST ${path5} with invalid user credentials should respond with 403`, done => {
       supertest(app)
