@@ -6,7 +6,7 @@ const utils = require('../../../utils/utils');
 const express = require('express');
 const router = express.Router();
 
-// create & update auth tokens
+// update auth: give refresh token, get access-token
 const passportOpt = { failureFlash: false, session: false };
 router.route('/auth').patch(
   passport.authenticate('jwt-refresh', passportOpt),
@@ -16,6 +16,7 @@ router.route('/auth').patch(
     }
   }
 );
+// create auth: give credentials, get refresh- & access-token
 router.route('/auth').post(
   passport.authenticate('local-login', passportOpt),
   (req, res) => {
