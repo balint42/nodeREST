@@ -1,6 +1,7 @@
 'use strict';
 
 const userModel = require('../models/userModel');
+const config = require('../../config/config');
 const Promise = require('bluebird');
 const VError = require('verror');
 const _ = require('lodash');
@@ -11,7 +12,7 @@ function createUser(email, password) {
       if (user) {
         throw new VError(new VError('email is already taken'), '400');
       }
-      if (_.size(password) < 8) {
+      if (_.size(password) < config.passwordLength) {
         throw new VError(new VError('invalid password'), '400');
       }
       return userModel.createUser({ email, password });
