@@ -5,7 +5,7 @@ const logger = require('./utils/logger');
 const utils = require('./utils/utils');
 const express = require('express');
 const mongoose = require('mongoose');
-const User = require('./app/models/user');
+const userModel = require('./app/models/userModel');
 
 const mongooseOpt = {
   server: { socketOptions: { keepAlive: 120 } },
@@ -15,7 +15,7 @@ mongoose.connect(config.mongoUrl, mongooseOpt);
 mongoose.connection.on('connected', () => {
   logger.info(`Mongoose default connection open to ${config.mongoUrl}`);
   // make sure there is an admin user
-  User.upsertAdmin(err => {
+  userModel.upsertAdmin(err => {
     logger.error(`Error creating admin user: ${utils.errorToString(err)}`);
   });
 });
