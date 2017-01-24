@@ -30,6 +30,12 @@ user.methods.hashPassword = function(password) {
 user.methods.validatePassword = function(password) {
   return bcrypt.compareSync(password, this.password);
 };
+user.statics.validateUser = function(email, password) {
+  return Promise.fromCallback(cb =>
+    this.findOne({ email }, cb)
+  )
+  .then(user => (user ? user.validatePassword(password) : false));
+};
 user.statics.findByIdAndMinimumRole = function(id, role) {
   return Promise.fromCallback(cb =>
     this.findOne({ _id: new ObjectId(id), role: { $gte: parseInt(role) } }, cb)
@@ -41,6 +47,12 @@ user.statics.deleteById = function(id) {
     this.remove({ _id: new ObjectId(id) }, cb)
   )
   .then(res => _.get(res, 'result.n'));
+};
+user.statics.findByEmail = function(email) {
+  return Promise.fromCallback(cb =>
+    this.findOne({ email }, cb)
+  )
+  .then(toObject);
 };
 user.statics.findById = function(id) {
   return Promise.fromCallback(cb =>

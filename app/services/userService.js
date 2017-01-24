@@ -6,7 +6,7 @@ const VError = require('verror');
 const _ = require('lodash');
 
 function createUser(email, password) {
-  return userModel.findOne({ email })
+  return userModel.findByEmail(email)
     .then(user => {
       if (user) {
         throw new VError(new VError('email is already taken'), '400');
@@ -19,13 +19,10 @@ function createUser(email, password) {
 }
 
 function validateUser(email, password) {
-  return userModel.findOne({ email })
-    .tap(user => {
-      if (! user) {
-        throw new VError('403');
-      }
-      if (! user.validatePassword(password)) {
-        throw new VError(new VError('wrong password'), '403');
+  return userModel.validateUser(email, password)
+    .tap(result => {
+      if (! result) {
+        throw new VError(new VError('wrong email or password'), '403');
       }
     });
 }
