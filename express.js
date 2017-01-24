@@ -3,6 +3,7 @@
 const config = require('./config/config');
 const glob = require('glob');
 const logger = require('./utils/logger');
+const utils = require('./utils/utils');
 const expressLogger = require('./utils/expressLogger');
 const uuid = require('node-uuid');
 const bodyParser = require('body-parser');
@@ -83,7 +84,7 @@ module.exports = function(app) {
   // error handler
   // MUST specifiy all arguments to replace default error handler
   app.use((err, req, res, next) => { // eslint-disable-line
-    const status = err.status || 500;
+    const status = err.status || utils.isClientError(err) ? 400 : 500;
     logger.error(err.message, {
       status,
       processId: req.processId,
