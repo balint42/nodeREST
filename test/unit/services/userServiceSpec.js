@@ -50,23 +50,22 @@ describe('test/unit/services/userServiceSpec', function() { // eslint-disable-li
       };
     });
     afterEach(() => {
-      userModel.findByEmail.restore();
+      userModel.findOne.restore();
     });
     it('should return user object', () => {
       userObj.validatePassword = () => true;
-      sinon.stub(userModel, 'findByEmail', () => Promise.resolve(userObj));
+      sinon.stub(userModel, 'findOne', (query, cb) => cb(null, userObj));
       const servicePromise = userService.validateUser('foo', 'foobar42');
-      return expect(servicePromise).to.be.resolved;
+      return expect(servicePromise).to.be.fulfilled;
     });
     it('should reject validation if wrong email', () => {
-      userObj.validatePassword = () => true;
-      sinon.stub(userModel, 'findByEmail', () => Promise.resolve(null));
+      sinon.stub(userModel, 'findOne', (query, cb) => cb(null, null));
       const servicePromise = userService.validateUser('foo', 'foobar42');
       return expect(servicePromise).to.be.rejected;
     });
     it('should reject validation if wrong password', () => {
       userObj.validatePassword = () => false;
-      sinon.stub(userModel, 'findByEmail', () => Promise.resolve(userObj));
+      sinon.stub(userModel, 'findOne', (query, cb) => cb(null, userObj));
       const servicePromise = userService.validateUser('foo', 'foobar42');
       return expect(servicePromise).to.be.rejected;
     });
@@ -108,7 +107,7 @@ describe('test/unit/services/userServiceSpec', function() { // eslint-disable-li
     it('should be resolved', () => {
       sinon.stub(userModel, 'updateById', () => Promise.resolve(1));
       const servicePromise = userService.updateById(userObj.id, userObj);
-      return expect(servicePromise).to.be.resolved;
+      return expect(servicePromise).to.be.fulfilled;
     });
     it('should reject if not found', () => {
       sinon.stub(userModel, 'updateById', () => Promise.resolve(0));
@@ -130,7 +129,7 @@ describe('test/unit/services/userServiceSpec', function() { // eslint-disable-li
     it('should be resolved', () => {
       sinon.stub(userModel, 'deleteById', () => Promise.resolve(1));
       const servicePromise = userService.deleteById(userObj.id);
-      return expect(servicePromise).to.be.resolved;
+      return expect(servicePromise).to.be.fulfilled;
     });
     it('should reject if not found', () => {
       sinon.stub(userModel, 'deleteById', () => Promise.resolve(0));
