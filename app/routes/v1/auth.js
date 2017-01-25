@@ -3,7 +3,6 @@
 const patchAuthReqValidator = require('../../validators/patchAuthReqValidator');
 const postAuthReqValidator = require('../../validators/postAuthReqValidator');
 const passport = require('../../utils/passport');
-const config = require('../../../config/config');
 const utils = require('../../../utils/utils');
 const express = require('express');
 const router = express.Router();
@@ -17,7 +16,7 @@ function createCheck(validator) {
     } else {
       next(error);
     }
-  }
+  };
 }
 
 // update auth: give refresh token, get access-token

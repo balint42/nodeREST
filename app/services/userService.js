@@ -2,7 +2,6 @@
 
 const userModel = require('../models/userModel');
 const config = require('../../config/config');
-const Promise = require('bluebird');
 const VError = require('verror');
 const _ = require('lodash');
 

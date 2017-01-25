@@ -1,7 +1,6 @@
 'use strict';
 
 const patchReqValidator = require('../../../app/validators/patchAuthReqValidator');
-const config = require('../../../config/config');
 const expect = require('chai').expect;
 const _ = require('lodash');
 
@@ -9,7 +8,7 @@ describe('test/unit/validators/patchReqValidatorSpec check', function() { // esl
   let req = {};
   beforeEach(() => {
     req = {
-      token: 'dummyToken'
+      token: 'dummyToken',
     };
   });
   it('should accept only req with token', () => {

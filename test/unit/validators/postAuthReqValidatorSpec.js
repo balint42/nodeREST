@@ -33,7 +33,9 @@ describe('test/unit/validators/postReqValidatorSpec check', function() { // esli
     expect(_.toString(error)).to.be.equal('VError: 400: password is required');
     req.body.password = 'foo';
     error = postReqValidator.check(req);
-    expect(_.toString(error)).to.be.equal(`VError: 400: password has to have min ${config.passwordLength} chars`);
+    expect(_.toString(error)).to.be.equal(
+      `VError: 400: password has to have min ${config.passwordLength} chars`
+    );
   });
 });
 

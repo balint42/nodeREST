@@ -20,7 +20,7 @@ function checkEmail(req) {
   const emailRegex = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/i; // eslint-disable-line
   if (_.isEmpty(req.body.email)) {
     return new VError(new VError('email is required'), '400');
-  } 
+  }
   if (! emailRegex.exec(req.body.email)) {
     return new VError(new VError('valid email is required'), '400');
   }

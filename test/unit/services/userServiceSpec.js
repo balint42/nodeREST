@@ -24,18 +24,18 @@ describe('test/unit/services/userServiceSpec', function() { // eslint-disable-li
       };
     });
     afterEach(() => {
-      userModel.findOne.restore();
+      userModel.findByEmail.restore();
       userModel.createUser.restore();
-    })
+    });
     it('should return new user object', () => {
-      sinon.stub(userModel, 'findOne', email => Promise.resolve(null));
-      sinon.stub(userModel, 'createUser', params => Promise.resolve(userObj));
+      sinon.stub(userModel, 'findByEmail', () => Promise.resolve(null));
+      sinon.stub(userModel, 'createUser', () => Promise.resolve(userObj));
       const servicePromise = userService.createUser('foo', 'foobar42');
       return expect(servicePromise).to.eventually.deep.equal(userObj);
     });
     it('should reject to create new user if email exists', () => {
-      sinon.stub(userModel, 'findOne', email => Promise.resolve(userObj));
-      sinon.stub(userModel, 'createUser', params => Promise.resolve(userObj));
+      sinon.stub(userModel, 'findByEmail', () => Promise.resolve(userObj));
+      sinon.stub(userModel, 'createUser', () => Promise.resolve(userObj));
       const servicePromise = userService.createUser('foo', 'foobar42');
       return expect(servicePromise).to.be.rejected;
     });
@@ -50,23 +50,23 @@ describe('test/unit/services/userServiceSpec', function() { // eslint-disable-li
       };
     });
     afterEach(() => {
-      userModel.findOne.restore();
-    })
+      userModel.findByEmail.restore();
+    });
     it('should return user object', () => {
-      sinon.stub(userModel, 'findOne', email => Promise.resolve(userObj));
       userObj.validatePassword = () => true;
+      sinon.stub(userModel, 'findByEmail', () => Promise.resolve(userObj));
       const servicePromise = userService.validateUser('foo', 'foobar42');
       return expect(servicePromise).to.be.resolved;
     });
     it('should reject validation if wrong email', () => {
-      sinon.stub(userModel, 'findOne', email => Promise.resolve(null));
       userObj.validatePassword = () => true;
+      sinon.stub(userModel, 'findByEmail', () => Promise.resolve(null));
       const servicePromise = userService.validateUser('foo', 'foobar42');
       return expect(servicePromise).to.be.rejected;
     });
     it('should reject validation if wrong password', () => {
-      sinon.stub(userModel, 'findOne', email => Promise.resolve(userObj));
       userObj.validatePassword = () => false;
+      sinon.stub(userModel, 'findByEmail', () => Promise.resolve(userObj));
       const servicePromise = userService.validateUser('foo', 'foobar42');
       return expect(servicePromise).to.be.rejected;
     });
@@ -82,14 +82,14 @@ describe('test/unit/services/userServiceSpec', function() { // eslint-disable-li
     });
     afterEach(() => {
       userModel.findById.restore();
-    })
+    });
     it('should return user object', () => {
-      sinon.stub(userModel, 'findById', id => Promise.resolve(userObj));
+      sinon.stub(userModel, 'findById', () => Promise.resolve(userObj));
       const servicePromise = userService.findById(userObj.id);
       return expect(servicePromise).to.eventually.deep.equal(userObj);
     });
     it('should reject if not found', () => {
-      sinon.stub(userModel, 'findById', id => Promise.resolve(null));
+      sinon.stub(userModel, 'findById', () => Promise.resolve(null));
       const servicePromise = userService.findById(userObj.id);
       return expect(servicePromise).to.be.rejectedWith(Error, '404');
     });
@@ -104,14 +104,14 @@ describe('test/unit/services/userServiceSpec', function() { // eslint-disable-li
     });
     afterEach(() => {
       userModel.updateById.restore();
-    })
+    });
     it('should be resolved', () => {
-      sinon.stub(userModel, 'updateById', (id, userObj) => Promise.resolve(1));
+      sinon.stub(userModel, 'updateById', () => Promise.resolve(1));
       const servicePromise = userService.updateById(userObj.id, userObj);
       return expect(servicePromise).to.be.resolved;
     });
     it('should reject if not found', () => {
-      sinon.stub(userModel, 'updateById', (id, userObj) => Promise.resolve(0));
+      sinon.stub(userModel, 'updateById', () => Promise.resolve(0));
       const servicePromise = userService.updateById(userObj.id, userObj);
       return expect(servicePromise).to.be.rejectedWith(Error, '404');
     });
@@ -126,14 +126,14 @@ describe('test/unit/services/userServiceSpec', function() { // eslint-disable-li
     });
     afterEach(() => {
       userModel.deleteById.restore();
-    })
+    });
     it('should be resolved', () => {
-      sinon.stub(userModel, 'deleteById', id => Promise.resolve(1));
+      sinon.stub(userModel, 'deleteById', () => Promise.resolve(1));
       const servicePromise = userService.deleteById(userObj.id);
       return expect(servicePromise).to.be.resolved;
     });
     it('should reject if not found', () => {
-      sinon.stub(userModel, 'deleteById', id => Promise.resolve(0));
+      sinon.stub(userModel, 'deleteById', () => Promise.resolve(0));
       const servicePromise = userService.deleteById(userObj.id);
       return expect(servicePromise).to.be.rejectedWith(Error, '404');
     });

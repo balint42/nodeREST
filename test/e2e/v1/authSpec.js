@@ -12,7 +12,10 @@ const app = server.app;
 describe('/v1/auth', function() {
   this.timeout(5000);
   describe('valid requests', () => {
-    const refreshToken = utils.getRefreshToken({ email: config.adminMail, role: config.roles.admin });
+    const refreshToken = utils.getRefreshToken({
+      email: config.adminMail,
+      role: config.roles.admin,
+    });
     const path1 = '/v1/auth';
     it(`PATCH ${path1} with refresh token should respond with valid access token`, done => {
       supertest(app)
@@ -31,7 +34,6 @@ describe('/v1/auth', function() {
 
     const path2 = '/v1/auth';
     const query2 = { email: config.adminMail, password: config.adminPassword };
-    let testId = null;
     it(`POST ${path2} with admin user credentials should respond with 200`, done => {
       supertest(app)
         .post(path2)
@@ -112,8 +114,10 @@ describe('/v1/auth', function() {
     });
 
     const path5 = '/v1/auth';
-    const query5 = { email: `footest${_.random(1, 9999)}@google.com`, password: 'foobar57546859e1a36d1824e80cb9' };
-    let testId = null;
+    const query5 = {
+      email: `footest${_.random(1, 9999)}@google.com`,
+      password: 'foobar57546859e1a36d1824e80cb9',
+    };
     it(`POST ${path5} with invalid user credentials should respond with 403`, done => {
       supertest(app)
         .post(path5)

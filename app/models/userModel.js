@@ -5,6 +5,7 @@ const bcrypt = require('bcrypt-nodejs');
 const ObjectId = require('mongoose').Types.ObjectId;
 const config = require('../../config/config');
 const Promise = require('bluebird');
+const VError = require('verror');
 const _ = require('lodash');
 
 const user = mongoose.Schema({
@@ -31,10 +32,8 @@ user.methods.validatePassword = function(password) {
   return bcrypt.compareSync(password, this.password);
 };
 user.statics.validateUser = function(email, password) {
-  return Promise.fromCallback(cb =>
-    this.findOne({ email }, cb)
-  )
-  .then(user => (user ? user.validatePassword(password) : false));
+  return this.findByEmail(email)
+  .then(userObj => (userObj ? userObj.validatePassword(password) : false));
 };
 user.statics.findByIdAndMinimumRole = function(id, role) {
   return Promise.fromCallback(cb =>

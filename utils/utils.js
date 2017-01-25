@@ -56,7 +56,7 @@ function isClientError(err) {
   const is400 = str => (!! /^4[0-9][0-9]/.exec(str));
   let hasCause400 = is400(err.message);
   let subErr = err;
-  while(! hasCause400 && _.hasIn(subErr, 'cause')) {
+  while (! hasCause400 && _.hasIn(subErr, 'cause')) {
     subErr = subErr.cause();
     hasCause400 = is400(_.get(subErr, 'message'));
   }

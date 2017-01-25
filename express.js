@@ -2,6 +2,7 @@
 
 const config = require('./config/config');
 const glob = require('glob');
+const VError = require('verror');
 const logger = require('./utils/logger');
 const utils = require('./utils/utils');
 const expressLogger = require('./utils/expressLogger');
