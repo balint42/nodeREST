@@ -32,8 +32,11 @@ user.methods.validatePassword = function(password) {
   return bcrypt.compareSync(password, this.password);
 };
 user.statics.validateUser = function(email, password) {
-  return this.findByEmail(email)
-  .then(userObj => (userObj ? userObj.validatePassword(password) : false));
+  return Promise.fromCallback(cb =>
+    this.findOne({ email }, cb)
+  )
+  .then(userObj => (userObj ? userObj.validatePassword(password) : false))
+  .catch(() => false);
 };
 user.statics.findByIdAndMinimumRole = function(id, role) {
   return Promise.fromCallback(cb =>
