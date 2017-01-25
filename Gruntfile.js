@@ -46,6 +46,9 @@ module.exports = function(grunt) {
       component: {
         src: ['test/component/**/*.js'],
       },
+      e2e: {
+        src: ['test/e2e/**/*.js'],
+      },
       // unit, integration, component
       uic: {
         src: [
@@ -78,9 +81,9 @@ module.exports = function(grunt) {
 
   // test task
   const description = 'Task running tests, first argument test type. Test types: ' +
-    'unit, integration, component, uic (default), all.';
+    'unit, integration, component, e2e, uic (default), all.';
   grunt.registerTask('test', description, type => {
-    const testType = type || 'uic';
+    const testType = type || 'all';
     const setEnv = process.env.SET_ENV_VARS !== 'false';
     const tasks = ['eslint'];
     if (setEnv) {
