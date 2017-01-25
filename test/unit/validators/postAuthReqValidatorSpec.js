@@ -5,7 +5,7 @@ const config = require('../../../config/config');
 const expect = require('chai').expect;
 const _ = require('lodash');
 
-describe('test/unit/validators/postReqValidatorSpec check', function() { // eslint-disable-line
+describe('test/unit/validators/postAuthReqValidator check', function() { // eslint-disable-line
   let req = {};
   beforeEach(() => {
     req = {
@@ -17,7 +17,7 @@ describe('test/unit/validators/postReqValidatorSpec check', function() { // esli
   });
   it('should accept only valid email', () => {
     let error = postReqValidator.check(req);
-    expect(error).to.be.equal(null);
+    expect(_.toString(error)).to.be.empty;
     delete req.body.email;
     error = postReqValidator.check(req);
     expect(_.toString(error)).to.be.equal('VError: 400: email is required');
@@ -27,7 +27,7 @@ describe('test/unit/validators/postReqValidatorSpec check', function() { // esli
   });
   it('should accept only valid password', () => {
     let error = postReqValidator.check(req);
-    expect(error).to.be.equal(null);
+    expect(_.toString(error)).to.be.empty;
     delete req.body.password;
     error = postReqValidator.check(req);
     expect(_.toString(error)).to.be.equal('VError: 400: password is required');
@@ -39,7 +39,7 @@ describe('test/unit/validators/postReqValidatorSpec check', function() { // esli
   });
 });
 
-describe('test/unit/validators/postReqValidatorSpec sanitize', function() { // eslint-disable-line
+describe('test/unit/validators/postAuthReqValidator sanitize', function() { // eslint-disable-line
   let req = {};
   beforeEach(() => {
     req = {
