@@ -51,20 +51,17 @@ const localOptions = {
 passport.use('local-signup', new LocalStrategy(
   localOptions,
   (req, email, password, done) => {
-    // defer until current stack is done
-    process.nextTick(() => {
-      userService.createUser(email, password)
-        .then(user => {
-          done(null, user);
-        })
-        .catch(err => {
-          if (utils.isClientError(err)) {
-            req.message = err.message;
-            return done(null, false);
-          }
-          done(err);
-        });
-    });
+    userService.createUser(email, password)
+      .then(user => {
+        done(null, user);
+      })
+      .catch(err => {
+        if (utils.isClientError(err)) {
+          req.message = err.message;
+          return done(err);
+        }
+        done(err);
+      });
   }
 ));
 passport.use('local-login', new LocalStrategy(
