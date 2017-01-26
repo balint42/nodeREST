@@ -5,6 +5,7 @@ const glob = require('glob');
 const VError = require('verror');
 const logger = require('./utils/logger');
 const utils = require('./utils/utils');
+const express = require('express');
 const expressLogger = require('./utils/expressLogger');
 const uuid = require('node-uuid');
 const bodyParser = require('body-parser');
@@ -21,6 +22,7 @@ module.exports = function(app) {
   // views path & engine
   app.set('views', `${config.root}/app/views`);
   app.set('view engine', 'ejs');
+  app.use(express.static(`${config.root}/app/files`));
 
   // disable etags for caching
   app.disable('etag');
@@ -96,7 +98,7 @@ module.exports = function(app) {
       res.status(status).json({
         status,
         name: err.name,
-        message: err.message,
+        message: err.message || req.message,
       });
     } else {
       // be sure not to leak sensitive info in production
