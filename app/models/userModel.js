@@ -9,7 +9,7 @@ const VError = require('verror');
 const _ = require('lodash');
 
 const user = mongoose.Schema({
-  email: { type: String, index: true },
+  email: { type: String, index: true, unique: true },
   password: String,
   role: Number,
 });
