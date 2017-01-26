@@ -1,6 +1,7 @@
 'use strict';
 
 const getDetailsUserReqValidator = require('../../validators/getDetailsReqValidator');
+const postUserReqValidator = require('../../validators/postUserReqValidator');
 const deleteUserReqValidator = require('../../validators/deleteReqValidator');
 const userService = require('../../services/userService');
 const passport = require('../../utils/passport');
@@ -34,12 +35,14 @@ const setMinimumRole = (req, res, next) => {
 const passportOpt = { failureFlash: false, session: false };
 
 // create new user
-router.route('/users').post(
-  passport.authenticate('local-signup', passportOpt),
-  (req, res) => {
-    res.status(200).json(req.user);
-  }
-);
+router.route('/users')
+  .post(createCheck(postUserReqValidator))
+  .post(
+    passport.authenticate('local-signup', passportOpt),
+    (req, res) => {
+      res.status(200).json(req.user);
+    }
+  );
 
 // get user
 router.route('/users/:userId')
