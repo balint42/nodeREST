@@ -1,0 +1,158 @@
+<!doctype html>
+<html>
+<head>
+  <title>Expenses</title>
+  <link rel="stylesheet" href="./main.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.7/components/container.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.7/components/button.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.7/components/message.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.7/components/segment.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.7/components/form.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.7/components/icon.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.7/components/header.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.7/components/grid.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.7/components/input.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.1.8/components/label.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.7/components/modal.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.7/components/transition.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.7/components/dimmer.min.css">
+  <!-- sync scripts - stop parsing until loaded -->
+  <script
+    type="text/javascript"
+    src="https://code.jquery.com/jquery-1.12.4.min.js"
+    integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ="
+    crossorigin="anonymous">
+  </script>
+  <!-- async scripts - continue parsing -->
+  <script
+    type="text/javascript"
+    src="//cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.7/components/form.min.js"
+    async>
+  </script>
+  <script
+    type="text/javascript"
+    src="//cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.7/components/modal.min.js"
+    async>
+  </script>
+  <script
+    type="text/javascript"
+    src="//cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.7/components/transition.min.js"
+    async>
+  </script>
+  <script
+    type="text/javascript"
+    src="//cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.7/components/dimmer.min.js"
+    async>
+  </script>
+  <script
+    type="text/javascript"
+    src="//cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.7/components/api.min.js"
+    async>
+  </script>
+  <script
+    type="text/javascript"
+    src="//cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/components/core-min.js"
+    async>
+  </script>
+  <script
+    type="text/javascript"
+    src="//cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/components/md5-min.js"
+    async>
+  </script>
+
+  <script type="text/javascript" async>
+  // window.onload waits until all JS loaded, document.ready does not
+  window.onload = () => {
+    function appendMessage(params) {
+      $(params.parent).addClass(params.type);
+      $(params.parent).append(
+        $(
+          '<div class="ui ' + params.type + ' message">' +
+            '<i class="close icon"></i>' +
+            '<div class="header">' + params.type + '!</div>' +
+            '<p>' + params.message + '</p>' +
+          '</div>'
+        )
+        .on('click', function() {
+          $(this)
+            .closest('.message')
+            .fadeOut();
+        })
+      );
+    }
+    // click sign up
+    $('.ui .add.user.icon').on('click', function() { $('.ui.long.modal').modal('show'); });
+    // define API endpoints
+    $.fn.api.settings.api = {
+      'create user': '/v1/users',
+    };
+    $('#signup .ui.submit.button').api({
+      action : 'create user',
+      method : 'POST',
+      onSuccess: function(res) {
+        $('#signup .ui.form .message').remove();
+        appendMessage({
+          message: 'success signing up, log in using your chosen credentials',
+          type: 'success',
+          parent: $('#signup .ui.form'),
+        });
+      },
+      onFailure: function(res) {
+        $('#signup .ui.form .message:has(.icon.close)').remove();
+        appendMessage({
+          message: res.message,
+          type: 'error',
+          parent: $('#signup .ui.form'),
+        });
+      },
+      beforeSend: function(settings) {
+        const pw = $('#signup .ui.form input[name=password]').val();
+        settings.data = {
+          email: $('#signup .ui.form input[name=email]').val(),
+          password: pw ? CryptoJS.MD5(pw).toString() : pw,
+        }
+        return settings;
+      }
+    });
+    // signup form validation
+    $('#signup .ui.form').form({
+      fields: {
+        email: ['email', 'empty'],
+        password: ['minLength[8]', 'empty'],
+      }
+    });
+  };
+  </script>
+</head>
+<body>
+  <div class="ui container">
+    <a class="launch icon item">
+      <i class="big content link icon"></i>
+    </a>
+    <a class="launch icon item">
+      <i class="big add user link icon"></i>
+    </a>
+  </div>
+  <div class="ui long modal" id="signup">
+    <div class="ui inverted segment">
+      <div class="header">
+        <i class="large add user icon"></i>
+        Sign Up
+      </div>
+      <div class="ui form">
+          <div class="field">
+            <a class="ui red ribbon label">E-mail</a>
+            <input name="email" placeholder="your@email.com" type="email">
+          </div>
+          <div class="field">
+            <a class="ui red ribbon label">Password</a>
+            <input name="password" type="password">
+          </div>
+        <div class="ui primary submit button">Submit</div>
+        <div class="ui error message"></div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
