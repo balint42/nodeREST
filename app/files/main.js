@@ -1,24 +1,9 @@
-function createExpense(params) {
-  // create new item with jQuery superpowers!
-  return $(
-    '<div class="item">' +
-      '<div class="left floated content">' +
-        '<i class="edit link icon"></i>' +
-      '</div>' +
-      '<div class="left floated content">' +
-        '<i class="remove link icon"></i>' +
-      '</div>' +
-      '<i class="big dollar icon"></i>' +
-      '<div class="content">' +
-        '<a class="header">' + params.date + ' @ ' + params.time + '</a>' +
-        '<a class="header">' + params.description + ' — ' + params.amount + ' $</a>' +
-        '<div class="description">' + params.comment + '</div>' +
-        '<div class="description">' + params.user.email + '</div>' +
-      '</div>' +
-    '</div>'
+// jQuery helper to search by dynamically updated data attributes
+$.fn.findByData = function(attr, val) {
+  return this.filter(
+    function() { return $(this).data(attr) == val; }
   );
 }
-
 // window.onload waits until all JS loaded, document.ready does not
 window.onload = () => {
   setUiState(false);
@@ -50,6 +35,45 @@ window.onload = () => {
         $(id).css('pointerEvents', 'none');
       });
     }
+  }
+  function createExpense(params) {
+    // create new item with jQuery superpowers!
+    const res = $(
+      '<div class="item" ' +
+        'data-id="' + params.id + '" ' +
+        'data-amount="' + params.amount + '"' +
+        'data-description="' + params.description + '"' +
+        'data-comment="' + params.comment + '"' +
+        'data-date="' + params.date + '"' +
+        'data-time="' + params.time + '"' +
+      '>' +
+        '<div class="left floated content">' +
+          '<i class="edit link icon"></i>' +
+        '</div>' +
+        '<div class="left floated content">' +
+          '<i class="remove link icon"></i>' +
+        '</div>' +
+        '<i class="big dollar icon"></i>' +
+        '<div class="content">' +
+          '<a class="header">' + params.date + ' @ ' + params.time + '</a>' +
+          '<a class="header">' + params.description + ' — ' + params.amount + ' $</a>' +
+          '<div class="description">' + params.comment + '</div>' +
+          '<div class="description">' + params.user.email + '</div>' +
+        '</div>' +
+      '</div>'
+    );
+    $(res).find('.remove.icon').on('click', removeExpense);
+    $(res).find('.edit.icon').on('click', function() {
+      const item = $(this).closest('.item');
+      $('#expensePatch').data('id', item.data('id'));
+      $('#expensePatch').find('input[name=amount]').val(item.data('amount'));
+      $('#expensePatch').find('input[name=description]').val(item.data('description'));
+      $('#expensePatch').find('input[name=comment]').val(item.data('comment'));
+      $('#expensePatch').find('input[name=date]').val(item.data('date'));
+      $('#expensePatch').find('input[name=time]').val(item.data('time'));
+      $('#expensePatch').modal('show');
+    });
+    return res;
   }
   function appendMessage(params) {
     $(params.parent).addClass(params.type);
@@ -95,7 +119,6 @@ window.onload = () => {
           res.forEach(expense => {
             $('.ui.list').append(createExpense(expense));
           });
-          $('.ui.list .remove.icon').on('click', removeExpense);
         }
       })
       .fail(function(res) {
@@ -108,21 +131,17 @@ window.onload = () => {
   }
   function removeExpense() {
     const target = this;
+    const id = $(this).closest('.item').data('id');
     $.ajax({
-        url: './v1/expenses/',
-        method: 'GET',
+        url: './v1/expenses/' + id,
+        method: 'DELETE',
         headers: { 'Authorization': 'Bearer ' + tokens.access },
+        dataType: 'text',
       })
-      .done(function(res) {
-        if (Array.isArray(res)) {
-          $('.ui.list').children().remove();
-          res.forEach(expense => {
-            $('.ui.list').append(createExpense(expense));
-          });
-          $('.ui.list .remove.icon').on('click', removeExpense);
-        }
+      .done(function(res, textStatus) {
+        $(target).closest('.item').remove();
       })
-      .fail(function(res) {
+      .fail(function(res, textStatus) {
         if (res.responseText === 'Unauthorized') {
           updateToken(function() {
             $(target).click();
@@ -133,13 +152,14 @@ window.onload = () => {
   // click menu icons
   $('#menuSignup').on('click', function() { $('#signup').modal('show'); });
   $('#menuSignin').on('click', function() { $('#signin').modal('show'); });
-  $('#menuAdd').on('click', function() { $('#expense').modal('show'); });
+  $('#menuAdd').on('click', function() { $('#expensePost').modal('show'); });
   $('#menuRefresh').on('click', refreshExpenses);
   // define API endpoints
   $.fn.api.settings.api = {
     'users': '/v1/users',
     'auth': '/v1/auth',
     'expenses': '/v1/expenses',
+    'expensesId': '/v1/expenses/{id}',
   };
   // custom form validation rules
   $.fn.form.settings.rules.validDate = function(value) {
@@ -211,16 +231,16 @@ window.onload = () => {
       return settings;
     }
   });
-  // create expense api settings
-  $('#expense .ui.submit.button').api({
+  // create expense post api settings
+  $('#expensePost .ui.submit.button').api({
     action : 'expenses',
     method : 'POST',
     onSuccess: function(res) {
-      $('#expense .ui.form .message').remove();
+      $('#expensePost .ui.form .message').remove();
       appendMessage({
         message: 'success!',
         type: 'success',
-        parent: $('#expense .ui.form'),
+        parent: $('#expensePost .ui.form'),
       });
       refreshExpenses();
     },
@@ -231,21 +251,63 @@ window.onload = () => {
           $(target).click();
         });
       };
-      $('#expense .ui.form .message:has(.icon.close)').remove();
+      $('#expensePost .ui.form .message:has(.icon.close)').remove();
       appendMessage({
         message: res.message || res,
         type: 'error',
-        parent: $('#expense .ui.form'),
+        parent: $('#expensePost .ui.form'),
       });
     },
     beforeSend: function(settings) {
       settings.data = {
-        amount: $('#expense .ui.form input[name=amount]').val(),
-        description: $('#expense .ui.form input[name=description]').val(),
-        comment: $('#expense .ui.form input[name=comment]').val(),
-        date: $('#expense .ui.form input[name=date]').val(),
-        time: $('#expense .ui.form input[name=time]').val(),
+        amount: $('#expensePost .ui.form input[name=amount]').val(),
+        description: $('#expensePost .ui.form input[name=description]').val(),
+        comment: $('#expensePost .ui.form input[name=comment]').val(),
+        date: $('#expensePost .ui.form input[name=date]').val(),
+        time: $('#expensePost .ui.form input[name=time]').val(),
       }
+      return settings;
+    },
+    beforeXHR: function(xhr) {
+      xhr.setRequestHeader ('Authorization', 'Bearer ' + tokens.access);
+    }
+  });
+  // create expense patch api settings
+  $('#expensePatch .ui.submit.button').api({
+    action : 'expensesId',
+    method : 'PATCH',
+    onSuccess: function(res) {
+      $('#expensePatch .ui.form .message').remove();
+      appendMessage({
+        message: 'success!',
+        type: 'success',
+        parent: $('#expensePatch .ui.form'),
+      });
+      refreshExpenses();
+    },
+    onFailure: function(res) {
+      if (res === 'Unauthorized') {
+        const target = this;
+        updateToken(function() {
+          $(target).click();
+        });
+      };
+      $('#expensePatch .ui.form .message:has(.icon.close)').remove();
+      appendMessage({
+        message: res.message || res,
+        type: 'error',
+        parent: $('#expensePatch .ui.form'),
+      });
+    },
+    beforeSend: function(settings) {
+      settings.data = {
+        amount: $('#expensePatch .ui.form input[name=amount]').val(),
+        description: $('#expensePatch .ui.form input[name=description]').val(),
+        comment: $('#expensePatch .ui.form input[name=comment]').val(),
+        date: $('#expensePatch .ui.form input[name=date]').val(),
+        time: $('#expensePatch .ui.form input[name=time]').val(),
+      };
+      settings.urlData = { id: $('#expensePatch').data('id') };
       return settings;
     },
     beforeXHR: function(xhr) {
@@ -267,7 +329,7 @@ window.onload = () => {
     }
   });
   // expense form validation
-  $('#expense .ui.form').form({
+  $('#expensePost .ui.form', '#expensePatch .ui.form').form({
     fields: {
       amount: ['number', 'empty'],
       description: ['minLength[2]', 'empty'],
