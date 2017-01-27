@@ -41,7 +41,7 @@ window.onload = () => {
     const res = $(
       '<div class="item" ' +
         'data-id="' + params.id + '" ' +
-        'data-amount="' + params.amount + '"' +
+        'data-amount="' + parseFloat(params.amount).toLocaleString() + '"' +
         'data-description="' + params.description + '"' +
         'data-comment="' + params.comment + '"' +
         'data-date="' + params.date + '"' +
@@ -108,10 +108,24 @@ window.onload = () => {
   }
   function refreshExpenses() {
     const target = $('#menuRefresh');
+    $('#filters1 .ui.form').submit();
+    $('#filters2 .ui.form').submit();
+    errorCount = $('#filters1 .ui.error div').length + $('#filters2 .ui.error div').length;
+    if(errorCount !== 0) return;
     $.ajax({
         url: './v1/expenses',
         method: 'GET',
         headers: { 'Authorization': 'Bearer ' + tokens.access },
+        data: {
+          minDate: $('#filters1 .ui.form input[name=minDate]').val(),
+          maxDate: $('#filters1 .ui.form input[name=maxDate]').val(),
+          minTime: $('#filters1 .ui.form input[name=minTime]').val(),
+          maxTime: $('#filters1 .ui.form input[name=maxTime]').val(),
+          minAmount: $('#filters2 .ui.form input[name=minAmount]').val(),
+          maxAmount: $('#filters2 .ui.form input[name=maxAmount]').val(),
+          description: $('#filters2 .ui.form input[name=description]').val(),
+          comment: $('#filters2 .ui.form input[name=comment]').val(),
+        },
       })
       .done(function(res) {
         if (Array.isArray(res)) {
@@ -163,11 +177,11 @@ window.onload = () => {
   };
   // custom form validation rules
   $.fn.form.settings.rules.validDate = function(value) {
-    try { return moment(value).isValid(); }
+    try { return moment(value || undefined).isValid(); }
     catch(e) { return false; }
   };
   $.fn.form.settings.rules.validTime = function(value) {
-    try { return moment('2017-01-01T' + value + 'Z').isValid(); }
+    try { return moment(value ? '2017-01-01T' + value + 'Z' : undefined).isValid(); }
     catch(e) { return false; }
   };
   // signup api settings
@@ -335,6 +349,22 @@ window.onload = () => {
       description: ['minLength[2]', 'empty'],
       date: ['validDate', 'empty'],
       time: ['validTime', 'empty'],
+    }
+  });
+  // filters1 form validation
+  $('#filters1 .ui.form').form({
+    fields: {
+      minDate: ['validDate'],
+      maxDate: ['validDate'],
+      minTime: ['validDate'],
+      maxTime: ['validDate'],
+    }
+  });
+  // filters2 form validation
+  $('#filters2 .ui.form').form({
+    fields: {
+      minAmount: ['number'],
+      maxAmount: ['number'],
     }
   });
 };
