@@ -2,6 +2,7 @@
 
 const getDetailsExpenseReqValidator = require('../../validators/getDetailsReqValidator');
 const patchExpenseReqValidator = require('../../validators/patchExpenseReqValidator');
+const getExpensesReqValidator = require('../../validators/getExpensesReqValidator');
 const postExpenseReqValidator = require('../../validators/postExpenseReqValidator');
 const deleteExpenseReqValidator = require('../../validators/deleteReqValidator');
 const expenseService = require('../../services/expenseService');
@@ -82,22 +83,24 @@ router.route('/expenses')
   );
 
 // get expenses
-router.route('/expenses').get(
-  passport.authenticate('jwt-access', passportOpt),
-  (req, res) => {
-    expenseService.findBy(req.query, req.user)
-      .then(expenses => {
-        res.json(expenses);
-      })
-      .catch(err => {
-        if (utils.isClientError(err)) {
-          return res.status(400).send();
-        }
-        logger.error(`Error finding expenses: ${utils.errorToString(err)}`);
-        res.status(500).send();
-      });
-  }
-);
+router.route('/expenses')
+  .get(createCheck(getExpensesReqValidator))
+  .get(
+    passport.authenticate('jwt-access', passportOpt),
+    (req, res) => {
+      expenseService.findBy(req.query, req.user)
+        .then(expenses => {
+          res.json(expenses);
+        })
+        .catch(err => {
+          if (utils.isClientError(err)) {
+            return res.status(400).send();
+          }
+          logger.error(`Error finding expenses: ${utils.errorToString(err)}`);
+          res.status(500).send();
+        });
+    }
+  );
 
 // get expense
 router.route('/expenses/:id')
