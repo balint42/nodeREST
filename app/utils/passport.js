@@ -4,7 +4,6 @@ const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const JwtStrategy = require('passport-jwt').Strategy;
 const config = require('../../config/config');
-const utils = require('../../utils/utils');
 const userService = require('../../app/services/userService');
 const _ = require('lodash');
 
@@ -56,10 +55,7 @@ passport.use('local-signup', new LocalStrategy(
         done(null, user);
       })
       .catch(err => {
-        if (utils.isClientError(err)) {
-          req.message = err.message;
-          return done(err);
-        }
+        req.message = err.message;
         done(err);
       });
   }
@@ -67,17 +63,14 @@ passport.use('local-signup', new LocalStrategy(
 passport.use('local-login', new LocalStrategy(
   localOptions,
   (req, email, password, done) => {
-    // defer until current stack is done
+    // defer until current stack is done to allow sign up to take effect
     process.nextTick(() => {
       userService.validateUser(email, password)
         .then(user => {
           done(null, user);
         })
         .catch(err => {
-          if (utils.isClientError(err)) {
-            req.message = err.message;
-            return done(null, false);
-          }
+          req.message = err.message;
           done(err);
         });
     });
