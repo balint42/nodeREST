@@ -17,7 +17,7 @@ function getRefreshToken(user) {
     },
     config.refreshTokenSecret,
     {
-      expiresIn: '30d',
+      expiresIn: config.refreshTokenExpiresIn,
     }
   );
 }
@@ -34,7 +34,7 @@ function getAccessToken(user) {
     },
     config.accessTokenSecret,
     {
-      expiresIn: '1h',
+      expiresIn: config.accessTokenExpiresIn,
     }
   );
 }
