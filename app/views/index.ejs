@@ -108,7 +108,40 @@
     </div>
   </div>
 
-  <div class="ui long modal" id="expense">
+  <div class="ui long modal" id="expensePost">
+    <div class="ui segment">
+      <div class="header">
+        <i class="large dollar icon"></i>
+        Expense
+      </div>
+      <div class="ui form">
+          <div class="field">
+            <a class="ui red ribbon label">amount</a>
+            <input name="amount" type="number">
+          </div>
+          <div class="field">
+            <a class="ui red ribbon label">description</a>
+            <input name="description" type="text">
+          </div>
+          <div class="field">
+            <a class="ui red ribbon label">comment</a>
+            <input name="comment" type="text">
+          </div>
+          <div class="field">
+            <a class="ui red ribbon label">date</a>
+            <input name="date" type="date">
+          </div>
+          <div class="field">
+            <a class="ui red ribbon label">time</a>
+            <input name="time" type="time">
+          </div>
+        <div class="ui primary submit button">Submit</div>
+        <div class="ui error message"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ui long modal" id="expensePatch">
     <div class="ui segment">
       <div class="header">
         <i class="large dollar icon"></i>
