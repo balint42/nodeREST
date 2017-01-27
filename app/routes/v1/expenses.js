@@ -85,7 +85,7 @@ router.route('/expenses')
 router.route('/expenses').get(
   passport.authenticate('jwt-access', passportOpt),
   (req, res) => {
-    expenseService.findBy(req.query)
+    expenseService.findBy(req.query, req.user)
       .then(expenses => {
         res.json(expenses);
       })
