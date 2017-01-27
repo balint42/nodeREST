@@ -12,22 +12,19 @@ const _ = require('lodash');
 // try to extend all expenses with owners
 function extendWithUsers(expenses) {
   const ownerIds = _.uniq(_.map(expenses, 'userId'));
-  const owners = {};
-  const promises = [];
-  _.forEach(ownerIds, ownerId => {
-    promises.push(
-      userModel.findById(ownerId).then(user => {
-        if (user) {
-          owners[user.id] = user;
-        }
-      }).catch(err =>
-        logger.error(`Error getting owner: ${utils.errorToString(err)}`)
-      )
+  const expensesGroupedByUser = _.map(ownerIds, ownerId => {
+    return userModel.findById(ownerId).then(user => {
+      const foo = _.map(
+        _.filter(expenses, exp => exp.userId === user.id),
+        exp => _.extend(exp, { user })
+      );
+      return foo;
+    }).catch(err =>
+      logger.error(`Error getting owner: ${utils.errorToString(err)}`)
     );
   });
-  const extendWithUser = exp => _.extend(exp, { user: owners[exp.userId] || null });
-  return Promise.all(promises)
-    .then(() => _.map(expenses, extendWithUser));
+  return Promise.all(expensesGroupedByUser)
+    .then(_.flatten);
 }
 
 function findBy(query, user) {
@@ -49,8 +46,8 @@ function findBy(query, user) {
   if (query.maxAmount) {
     params.maxAmount = query.maxAmount;
   }
-  const extendWithUser = _.partialRight(_.map,
-    _.partialRight(_.extend, { user })
+  const extendWithUser = expenses => _.map(expenses,
+    exp => _.extend(exp, { user })
   );
   return expenseModel.findBy(params)
     .then(findOnlyOwn ? extendWithUser : extendWithUsers);
