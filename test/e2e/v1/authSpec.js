@@ -122,7 +122,7 @@ describe('/v1/auth', function() {
       supertest(app)
         .post(path5)
         .send(query5)
-        .expect(401)
+        .expect(403)
         .end(done);
     });
   });

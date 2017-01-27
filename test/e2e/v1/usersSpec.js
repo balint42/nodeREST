@@ -43,7 +43,7 @@ describe('/v1/users', function() {
 
     const path3 = '/v1/users';
     const query3 = {
-      email: `footest${_.random(1, 9999)}`,
+      email: `footest${_.random(1, 9999)}@google.com`,
       password: 'foobar57546859e1a36d1824e80cb9',
     };
     let testId = null;
@@ -118,12 +118,12 @@ describe('/v1/users', function() {
 
     const path5 = '/v1/users';
     const query5 = { email: config.adminMail, password: 'foobar57546859e1a36d1824e80cb9' };
-    it(`POST ${path5} with ${JSON.stringify(query5)} should respond 401, duplicate email`, done => {
+    it(`POST ${path5} with ${JSON.stringify(query5)} should respond 400, duplicate email`, done => {
       supertest(app)
         .post(path5)
         .set('Authorization', `Bearer ${accessToken}`)
         .send(query5)
-        .expect(401)
+        .expect(400)
         .end(done);
     });
     const path6 = '/v1/users';
