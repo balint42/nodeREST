@@ -13,15 +13,17 @@ const _ = require('lodash');
 function extendWithUsers(expenses) {
   const ownerIds = _.uniq(_.map(expenses, 'userId'));
   const expensesGroupedByUser = _.map(ownerIds, ownerId => {
-    return userModel.findById(ownerId).then(user => {
-      const foo = _.map(
-        _.filter(expenses, exp => exp.userId === user.id),
-        exp => _.extend(exp, { user })
+    return userModel.findById(ownerId)
+      .then(user => {
+        const expensesWithUser = _.map(
+          _.filter(expenses, exp => _.toString(exp.userId) === _.toString(user.id)),
+          exp => _.extend(exp, { user })
+        );
+        return expensesWithUser;
+      })
+      .catch(err =>
+        logger.error(`Error getting owner: ${utils.errorToString(err)}`)
       );
-      return foo;
-    }).catch(err =>
-      logger.error(`Error getting owner: ${utils.errorToString(err)}`)
-    );
   });
   return Promise.all(expensesGroupedByUser)
     .then(_.flatten);
