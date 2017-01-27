@@ -29,22 +29,20 @@ function extendWithUsers(expenses) {
 
 function findBy(query, user) {
   if (! user) return Promise.reject(new VError('user required'));
-  const params = {};
+  const params = _.pick(
+    query,
+    'minDate',
+    'maxDate',
+    'minTime',
+    'maxTime',
+    'minAmount',
+    'maxAmount',
+    'description',
+    'comment'
+  );
   const findOnlyOwn = user.role !== config.roles.admin;
   if (findOnlyOwn) {
     params.userId = user.id;
-  }
-  if (query.minDate) {
-    params.minDate = query.minDate;
-  }
-  if (query.maxDate) {
-    params.minDate = query.minDate;
-  }
-  if (query.minAmount) {
-    params.minAmount = query.minAmount;
-  }
-  if (query.maxAmount) {
-    params.maxAmount = query.maxAmount;
   }
   const extendWithUser = expenses => _.map(expenses,
     exp => _.extend(exp, { user })
