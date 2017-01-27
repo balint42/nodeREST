@@ -35,8 +35,14 @@ user.statics.validateUser = function(email, password) {
   return Promise.fromCallback(cb =>
     this.findOne({ email }, cb)
   )
-  .then(userObj => (userObj ? userObj.validatePassword(password) : false))
-  .catch(() => false);
+  .then(userObj => {
+    if (userObj) {
+      return userObj.validatePassword(password) ? userObj : null;
+    }
+    return null;
+  })
+  .then(toObject)
+  .catch(() => null);
 };
 user.statics.findByIdAndMinimumRole = function(id, role) {
   return Promise.fromCallback(cb =>
