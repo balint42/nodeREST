@@ -51,22 +51,27 @@ function errorToString(err) {
   return _.hasIn(err, 'toString') ? err.toString() : '';
 }
 
-function isClientError(err) {
+function getClientError(err) {
   if (! isError(err)) return false;
-  const is400 = str => (!! /^4[0-9][0-9]/.exec(str));
-  let hasCause400 = is400(err.message);
+  const get400 = str => _.first(/^4[0-9][0-9]/.exec(str));
+  let cause400 = get400(err.message);
   let subErr = err;
-  while (! hasCause400 && _.hasIn(subErr, 'cause')) {
+  while (! cause400 && _.hasIn(subErr, 'cause')) {
     subErr = subErr.cause();
-    hasCause400 = is400(_.get(subErr, 'message'));
+    cause400 = get400(_.get(subErr, 'message'));
   }
-  return hasCause400;
+  return cause400;
+}
+
+function isClientError(err) {
+  return !! getClientError(err);
 }
 
 module.exports = {
   isError,
   errorToString,
   isClientError,
+  getClientError,
   getRefreshToken,
   getAccessToken,
 };
