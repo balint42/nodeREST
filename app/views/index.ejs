@@ -65,6 +65,92 @@
       </i>
     </a>
   </div>
+  <div class="ui container" id="filters1">
+    <div class="ui form">
+      <div class="inline fields">
+        <div class="three wide field">
+          <div class="ui mini right labeled left icon input">
+            <input placeholder="2017-01-01" name="minDate" type="date">
+            <i class="calendar outline icon"></i>
+            <a class="ui tag label">
+              min
+            </a>
+          </div>
+        </div>
+        <div class="three wide field">
+          <div class="ui mini right labeled left icon input">
+            <input placeholder="2017-01-01" name="maxDate" type="date">
+            <i class="calendar outline icon"></i>
+            <a class="ui tag label">
+              max
+            </a>
+          </div>
+        </div>
+        <div class="three wide field">
+          <div class="ui mini right labeled left icon input">
+            <input placeholder="13:23:42" name="minTime" type="time">
+            <i class="empty hourglass icon"></i>
+            <a class="ui tag label">
+              min
+            </a>
+          </div>
+        </div>
+        <div class="three wide field">
+          <div class="ui mini right labeled left icon input">
+            <input placeholder="13:23:42" name="maxTime" type="time">
+            <i class="empty hourglass icon"></i>
+            <a class="ui tag label">
+              max
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="ui error message"></div>
+    </div>
+  </div>
+  <div class="ui container" id="filters2">
+    <div class="ui form">
+      <div class="inline fields">
+        <div class="three wide field">
+          <div class="ui mini right labeled left icon input">
+            <input placeholder="7.2" name="minAmount" type="number" step="0.1">
+            <i class="dollar icon"></i>
+            <a class="ui tag label">
+              min
+            </a>
+          </div>
+        </div>
+        <div class="three wide field">
+          <div class="ui mini right labeled left icon input">
+            <input placeholder="7.2" name="maxAmount" type="number" step="0.1">
+            <i class="dollar icon"></i>
+            <a class="ui tag label">
+              max
+            </a>
+          </div>
+        </div>
+        <div class="three wide field">
+          <div class="ui mini right labeled left icon input">
+            <input placeholder="title..." name="description" type="text">
+            <i class="search icon"></i>
+            <a class="ui tag label">
+              title
+            </a>
+          </div>
+        </div>
+        <div class="three wide field">
+          <div class="ui mini right labeled left icon input">
+            <input placeholder="comment..." name="comment" type="text">
+            <i class="search icon"></i>
+            <a class="ui tag label">
+              comment
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="ui error message"></div>
+    </div>
+  </div>
 
   <div class="ui long modal" id="signup">
     <div class="ui inverted segment">
@@ -117,7 +203,7 @@
       <div class="ui form">
           <div class="field">
             <a class="ui red ribbon label">amount</a>
-            <input name="amount" type="number">
+            <input name="amount" type="number" step="0.1">
           </div>
           <div class="field">
             <a class="ui red ribbon label">description</a>
@@ -150,7 +236,7 @@
       <div class="ui form">
           <div class="field">
             <a class="ui red ribbon label">amount</a>
-            <input name="amount" type="number">
+            <input name="amount" type="number" step="0.1">
           </div>
           <div class="field">
             <a class="ui red ribbon label">description</a>
