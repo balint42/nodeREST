@@ -86,8 +86,8 @@ module.exports = function(app) {
 
   // error handler
   // MUST specifiy all arguments to replace default error handler
-  app.use((err, req, res, next) => { // eslint-disable-line
-    const status = err.status || utils.isClientError(err) ? 400 : 500;
+  app.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
+    const status = err.status || utils.getClientError(err) || 500;
     logger.error(err.message, {
       status,
       processId: req.processId,
