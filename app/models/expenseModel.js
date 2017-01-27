@@ -78,15 +78,19 @@ expense.statics.findBy = function(params) {
     if (params.userId) {
       stage1.$match.userId = new ObjectId(params.userId);
     }
-    if (params.minDate || params.maxDate) {
+    if (params.minDate || params.maxDate || params.minTime || params.maxTime) {
       stage1.$match.datetime = {};
     }
-    if (params.minDate) {
-      const dateStr = moment.utc(params.minDate).toISOString();
+    if (params.minDate || params.minTime) {
+      let dateStr = params.minDate || params.maxDate || '2017-01-01';
+      dateStr += `T${params.minTime || '00:00:00'}Z`;
+      dateStr = moment.utc(dateStr).toISOString();
       stage1.$match.datetime.$gte = new Date(dateStr);
     }
-    if (params.maxDate) {
-      const dateStr = moment.utc(params.maxDate).toISOString();
+    if (params.maxDate || params.maxTime) {
+      let dateStr = params.maxDate || params.minDate || '2017-01-01';
+      dateStr += `T${params.maxTime || '23:59:59'}Z`;
+      dateStr = moment.utc(dateStr).toISOString();
       stage1.$match.datetime.$lte = new Date(dateStr);
     }
     if (params.minAmount || params.maxAmount) {
@@ -132,11 +136,21 @@ expense.statics.findById = function(id) {
   .then(_replaceDatetimeWithDateAndTime);
 };
 expense.statics.updateById = function(id, keyValues) {
-  return Promise.fromCallback(cb => {
-    if (_.has(keyValues._id)) delete keyValues._id;
-    this.where({ _id: id }).update(keyValues, cb);
-  })
-  .then(res => _.get(res, 'n'));
+  return this.findById(id)
+    .then(oldExpense => {
+      if (! oldExpense) return { n: 0 };
+      if (_.has(keyValues._id)) delete keyValues._id;
+      return Promise.fromCallback(cb => {
+        // if only one of date or time should be set, set the other to old value
+        if (keyValues.date || keyValues.time) {
+          keyValues.date = keyValues.date || oldExpense.date;
+          keyValues.time = keyValues.time || oldExpense.time;
+          _replaceDateAndTimeWithDatetime(keyValues);
+        }
+        this.where({ _id: new ObjectId(id) }).update(keyValues, cb);
+      });
+    })
+    .then(res => _.get(res, 'n'));
 };
 expense.statics.create = function(keyValues) {
   return Promise.fromCallback(cb => {
