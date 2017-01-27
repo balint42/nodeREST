@@ -67,7 +67,7 @@ expense.statics.findBy = function(params) {
     const stage2 = {
       $project: {
         date: { $dateToString: { format: '%Y-%m-%d', date: '$datetime' } },
-        time: { $dateToString: { format: '%H-%M-%S', date: '$datetime' } },
+        time: { $dateToString: { format: '%H:%M:%S', date: '$datetime' } },
         amount: 1,
         datetime: 1,
         description: 1,
