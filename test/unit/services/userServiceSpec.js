@@ -93,6 +93,24 @@ describe('test/unit/services/userServiceSpec', function() { // eslint-disable-li
       return expect(servicePromise).to.be.rejectedWith(Error, '404');
     });
   });
+  describe('findAll', () => {
+    beforeEach(() => {
+      userObj = {
+        id: new ObjectId(),
+        role: 1,
+        email: 'foo',
+        password: 'foobar42',
+      };
+    });
+    afterEach(() => {
+      userModel.findAll.restore();
+    });
+    it('should return user object', () => {
+      sinon.stub(userModel, 'findAll', () => Promise.resolve([userObj]));
+      const servicePromise = userService.findAll();
+      return expect(servicePromise).to.eventually.deep.equal([userObj]);
+    });
+  });
   describe('updateById', () => {
     beforeEach(() => {
       userObj = {
