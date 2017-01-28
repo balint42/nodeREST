@@ -27,7 +27,10 @@ router.route('/auth')
     passport.authenticate('jwt-refresh', passportOpt),
     (req, res) => {
       if (req.isAuthenticated()) {
-        res.status(200).json({ accessToken: utils.getAccessToken(req.user) });
+        res.status(200).json({
+          accessToken: utils.getAccessToken(req.user),
+          role: req.user.role,
+        });
       }
     }
   );
@@ -41,6 +44,7 @@ router.route('/auth')
         res.status(200).json({
           refreshToken: utils.getRefreshToken(req.user),
           accessToken: utils.getAccessToken(req.user),
+          role: req.user.role,
         });
       }
     }
