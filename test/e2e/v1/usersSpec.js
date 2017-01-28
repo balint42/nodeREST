@@ -65,9 +65,26 @@ describe('/v1/users', function() {
     });
 
     const path4 = '/v1/users';
-    it(`DELETE ${path4} should respond with 204`, done => {
+    it(`GET ${path4} should respond with json array`, done => {
       supertest(app)
-        .delete(`${path4}/${testId}`)
+        .get(path4)
+        .set('Accept', 'application/json')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .expect(200)
+        .expect('Content-Type', /json/)
+        .end((err, res) => {
+          if (err) return done(err);
+          expect(res.body).to.be.ok;
+          expect(Array.isArray(res.body)).to.be.true;
+          expect(res.body).to.have.length.above(0);
+          done();
+        });
+    });
+
+    const path5 = '/v1/users';
+    it(`DELETE ${path5} should respond with 204`, done => {
+      supertest(app)
+        .delete(`${path5}/${testId}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(204)
         .end(done);
@@ -162,6 +179,14 @@ describe('/v1/users', function() {
         .expect(404)
         .end(done);
     });
+
+    const path10 = '/v1/users';
+    it(`GET ${path10} should respond with 401 without JWT token`, done => {
+      supertest(app)
+        .get(path10)
+        .expect(401)
+        .end(done);
+    });
   });
   describe('invalid requests due to wrong role', () => {
     const path1 = `/v1/users/${config.adminId}`;
@@ -189,6 +214,15 @@ describe('/v1/users', function() {
     it(`DELETE ${path3} should respond with 403 with wrong JWT role`, done => {
       supertest(app)
         .delete(path3)
+        .set('Accept', 'application/json')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .expect(403)
+        .end(done);
+    });
+    const path4 = '/v1/users';
+    it(`GET ${path4} should respond with 403 with wrong JWT role`, done => {
+      supertest(app)
+        .get(path4)
         .set('Accept', 'application/json')
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(403)
