@@ -7,6 +7,7 @@ $.fn.findByData = function(attr, val) {
 // window.onload waits until all JS loaded, document.ready does not
 window.onload = () => {
   setUiState(false);
+  const roleNames = ['', 'user', 'manager', 'admin'];
   const tokens = Object.create(Object.prototype, {
     access: {
       get: function() { return this.__a; },
@@ -21,16 +22,34 @@ window.onload = () => {
         this.__r = val;
         setUiState(val && this.__a);
       }
+    },
+    role: {
+      get: function() { return this.__ro; },
+      set: function(val) {
+        this.__ro = parseInt(val);
+        setUiState(this.__ro);
+      }
     }
   });
-  function setUiState(enabled) {
-    if (enabled) {
+  function setUiState(state) {
+    if (state) {
       ['#menuAdd', '#menuRefresh'].forEach(function(id) {
         $(id + ' .icon').removeClass('disabled');
         $(id).css('pointerEvents', 'auto');
       });
     } else {
       ['#menuAdd', '#menuRefresh'].forEach(function(id) {
+        $(id + ' .icon').addClass('disabled');
+        $(id).css('pointerEvents', 'none');
+      });
+    }
+    if (state > 1) {
+      ['#menuRefreshUsers'].forEach(function(id) {
+        $(id + ' .icon').removeClass('disabled');
+        $(id).css('pointerEvents', 'auto');
+      });
+    } else {
+      ['#menuRefreshUsers'].forEach(function(id) {
         $(id + ' .icon').addClass('disabled');
         $(id).css('pointerEvents', 'none');
       });
@@ -72,6 +91,37 @@ window.onload = () => {
       $('#expensePatch').find('input[name=date]').val(item.data('date'));
       $('#expensePatch').find('input[name=time]').val(item.data('time'));
       $('#expensePatch').modal('show');
+   });
+   return res;
+  }
+  function createUser(params) {
+    // create new item with jQuery superpowers!
+    const res = $(
+      '<div class="item" ' +
+        'data-id="' + params.id + '" ' +
+        'data-email="' + params.email + '"' +
+        'data-role="' + roleNames[params.role] + '"' +
+      '>' +
+        '<div class="left floated content">' +
+          '<i class="edit link icon"></i>' +
+        '</div>' +
+        '<div class="left floated content">' +
+          '<i class="remove link icon"></i>' +
+        '</div>' +
+        '<i class="big user icon"></i>' +
+        '<div class="content">' +
+          '<a class="header">' + params.email + '</a>' +
+          '<a class="header">' + roleNames[params.role] + '</a>' +
+        '</div>' +
+      '</div>'
+    );
+    $(res).find('.remove.icon').on('click', removeUser);
+    $(res).find('.edit.icon').on('click', function() {
+      const item = $(this).closest('.item');
+      $('#userPatch').data('id', item.data('id'));
+      $('#userPatch').find('input[name=email]').val(item.data('email'));
+      $('#userPatch').find('input[name=role]').val(item.data('role'));
+      $('#userPatch').modal('show');
     });
     return res;
   }
@@ -100,6 +150,7 @@ window.onload = () => {
       })
       .done(function(res) {
         if (res.accessToken) tokens.access = res.accessToken;
+        if (res.role) tokens.role = res.role;
         cb();
       })
       .fail(function(res) {
@@ -143,6 +194,30 @@ window.onload = () => {
         };
       });
   }
+  function refreshUsers() {
+    const target = $('#menuRefreshUsers');
+    $.ajax({
+        url: './v1/users',
+        method: 'GET',
+        headers: { 'Authorization': 'Bearer ' + tokens.access },
+        data: {},
+      })
+      .done(function(res) {
+        if (Array.isArray(res)) {
+          $('.ui.list').children().remove();
+          res.forEach(user => {
+            $('.ui.list').append(createUser(user));
+          });
+        }
+      })
+      .fail(function(res) {
+        if (res.responseText === 'Unauthorized') {
+          updateToken(function() {
+            $(target).click();
+          });
+        };
+      });
+  }
   function removeExpense() {
     const target = this;
     const id = $(this).closest('.item').data('id');
@@ -163,17 +238,39 @@ window.onload = () => {
         };
       });
   }
+  function removeUser() {
+    const target = this;
+    const id = $(this).closest('.item').data('id');
+    $.ajax({
+        url: './v1/users/' + id,
+        method: 'DELETE',
+        headers: { 'Authorization': 'Bearer ' + tokens.access },
+        dataType: 'text',
+      })
+      .done(function(res, textStatus) {
+        $(target).closest('.item').remove();
+      })
+      .fail(function(res, textStatus) {
+        if (res.responseText === 'Unauthorized') {
+          updateToken(function() {
+            $(target).click();
+          });
+        };
+      });
+  }
   // click menu icons
   $('#menuSignup').on('click', function() { $('#signup').modal('show'); });
   $('#menuSignin').on('click', function() { $('#signin').modal('show'); });
   $('#menuAdd').on('click', function() { $('#expensePost').modal('show'); });
   $('#menuRefresh').on('click', refreshExpenses);
+  $('#menuRefreshUsers').on('click', refreshUsers);
   // define API endpoints
   $.fn.api.settings.api = {
     'users': '/v1/users',
     'auth': '/v1/auth',
     'expenses': '/v1/expenses',
     'expensesId': '/v1/expenses/{id}',
+    'usersId': '/v1/users/{id}',
   };
   // custom form validation rules
   $.fn.form.settings.rules.validDate = function(value) {
@@ -183,6 +280,9 @@ window.onload = () => {
   $.fn.form.settings.rules.validTime = function(value) {
     try { return moment(value ? '2017-01-01T' + value + 'Z' : undefined).isValid(); }
     catch(e) { return false; }
+  };
+  $.fn.form.settings.rules.validRole = function(value) {
+    return !! roleNames[value];
   };
   // signup api settings
   $('#signup .ui.submit.button').api({
@@ -220,6 +320,7 @@ window.onload = () => {
     onSuccess: function(res) {
       tokens.access = res.accessToken;
       tokens.refresh = res.refreshToken;
+      tokens.role = res.role;
       $('#signin .ui.form .message').remove();
       appendMessage({
         message: 'success signing in',
@@ -286,7 +387,7 @@ window.onload = () => {
       xhr.setRequestHeader ('Authorization', 'Bearer ' + tokens.access);
     }
   });
-  // create expense patch api settings
+  // update expense patch api settings
   $('#expensePatch .ui.submit.button').api({
     action : 'expensesId',
     method : 'PATCH',
@@ -328,6 +429,45 @@ window.onload = () => {
       xhr.setRequestHeader ('Authorization', 'Bearer ' + tokens.access);
     }
   });
+  // update user patch api settings
+  $('#userPatch .ui.submit.button').api({
+    action : 'usersId',
+    method : 'PATCH',
+    onSuccess: function(res) {
+      $('#userPatch .ui.form .message').remove();
+      appendMessage({
+        message: 'success!',
+        type: 'success',
+        parent: $('#userPatch .ui.form'),
+      });
+      refreshExpenses();
+    },
+    onFailure: function(res) {
+      if (res === 'Unauthorized') {
+        const target = this;
+        updateToken(function() {
+          $(target).click();
+        });
+      };
+      $('#userPatch .ui.form .message:has(.icon.close)').remove();
+      appendMessage({
+        message: res.message || res,
+        type: 'error',
+        parent: $('#userPatch .ui.form'),
+      });
+    },
+    beforeSend: function(settings) {
+      settings.data = {
+        email: $('#userPatch .ui.form input[name=email]').val(),
+        role: $('#userPatch .ui.form input[name=role]').val(),
+      };
+      settings.urlData = { id: $('#userPatch').data('id') };
+      return settings;
+    },
+    beforeXHR: function(xhr) {
+      xhr.setRequestHeader ('Authorization', 'Bearer ' + tokens.access);
+    }
+  });
   // signup form validation
   $('#signup .ui.form').form({
     fields: {
@@ -340,6 +480,13 @@ window.onload = () => {
     fields: {
       email: ['email', 'empty'],
       password: ['minLength[8]', 'empty'],
+    }
+  });
+  // userPatch form validation
+  $('#userPatch .ui.form').form({
+    fields: {
+      email: ['email', 'empty'],
+      role: ['validRole', 'empty'],
     }
   });
   // expense form validation
@@ -356,8 +503,8 @@ window.onload = () => {
     fields: {
       minDate: ['validDate'],
       maxDate: ['validDate'],
-      minTime: ['validDate'],
-      maxTime: ['validDate'],
+      minTime: ['validTime'],
+      maxTime: ['validTime'],
     }
   });
   // filters2 form validation
