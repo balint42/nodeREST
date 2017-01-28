@@ -11,7 +11,7 @@ const _ = require('lodash');
 
 // try to extend all expenses with owners
 function extendWithUsers(expenses) {
-  const ownerIds = _.uniq(_.map(expenses, 'userId'));
+  const ownerIds = _.uniq(_.map(expenses, exp => exp.userId.toString()));
   const expensesGroupedByUser = _.map(ownerIds, ownerId => {
     return userModel.findById(ownerId)
       .then(user => {
