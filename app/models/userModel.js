@@ -25,6 +25,10 @@ function toObject(res) {
   return obj;
 }
 
+function toObjects(res) {
+  return _.map(res, toObject);
+}
+
 user.methods.hashPassword = function(password) {
   return bcrypt.hashSync(password, bcrypt.genSaltSync(8), null);
 };
@@ -68,6 +72,12 @@ user.statics.findById = function(id) {
   )
   .then(toObject);
 };
+user.statics.findAll = function() {
+  return Promise.fromCallback(cb =>
+    this.find({}, cb)
+  )
+  .then(toObjects);
+};
 user.statics.updateById = function(id, keyValues) {
   return Promise.fromCallback(cb => {
     if (_.has(keyValues._id)) delete keyValues._id;
@@ -97,26 +107,27 @@ user.statics.createUser = function(keyValues) {
   .then(toObject);
 };
 user.statics.upsertAdmin = function() {
-  return Promise.fromCallback(cb =>
-    this.findOne({ email: config.adminMail }, cb)
-  )
-  .then(userObj => {
-    if (userObj) return;
-    return Promise.fromCallback(cb => {
-      this.createUser(
-        {
-          id: config.adminId,
-          role: config.roles.admin,
-          email: config.adminMail,
-          password: config.adminPassword,
-        },
-        cb
-      );
-    })
+  const self = this;
+  const co = Promise.coroutine(function* () {
+    const userObj = yield self.findOne({ email: config.adminMail });
+    if (userObj) {
+      return self.updateById(userObj._id, {
+        role: config.roles.admin,
+        email: config.adminMail,
+        password: userObj.hashPassword(config.adminPassword),
+      });
+    }
+    return self.createUser({
+      id: config.adminId,
+      role: config.roles.admin,
+      email: config.adminMail,
+      password: config.adminPassword,
+    });
+  });
+  return co()
     .tap(newUser => {
       if (! newUser) throw new VError('failed to create admin user');
     });
-  });
 };
 
 
