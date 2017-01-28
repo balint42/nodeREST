@@ -3,6 +3,7 @@
 // the node environment, can be "test", "development", "production"
 const env = process.env.NODE_ENV || 'development';
 const path = require('path');
+const md5 = require('md5');
 const rootPath = path.normalize(path.join(__dirname, '..'));
 const _ = require('lodash');
 
@@ -37,7 +38,7 @@ const commonConfig = {
   },
   adminId: '57543795c5e18d4310a7db1f',
   adminMail: process.env.ADMIN_MAIL,
-  adminPassword: process.env.ADMIN_PASSWORD,
+  adminPassword: md5(process.env.ADMIN_PASSWORD),
   accessTokenSecret: process.env.ACCESS_TOKEN_SECRET,
   refreshTokenSecret: process.env.REFRESH_TOKEN_SECRET,
   accessTokenExpiresIn: '10s',
