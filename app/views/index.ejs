@@ -40,6 +40,12 @@
 </head>
 <body>
   <div class="ui container">
+    <a class="launch icon item" id="menuRefreshUsers">
+      <i class="big link icons">
+        <i class="user icon"></i>
+        <i class="corner refresh icon"></i>
+      </i>
+    </a>
     <a class="launch icon item" id="menuRefresh">
       <i class="big link icons">
         <i class="content icon"></i>
@@ -187,6 +193,27 @@
           <div class="field">
             <a class="ui red ribbon label">Password</a>
             <input name="password" type="password">
+          </div>
+        <div class="ui primary submit button">Submit</div>
+        <div class="ui error message"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ui long modal" id="userPatch">
+    <div class="ui inverted segment">
+      <div class="header">
+        <i class="large user icon"></i>
+        User
+      </div>
+      <div class="ui form">
+          <div class="field">
+            <a class="ui red ribbon label">E-mail</a>
+            <input name="email" placeholder="your@email.com" type="email">
+          </div>
+          <div class="field">
+            <a class="ui red ribbon label">Role</a>
+            <input name="role" placeholder="user | manager | admin" type="text">
           </div>
         <div class="ui primary submit button">Submit</div>
         <div class="ui error message"></div>
