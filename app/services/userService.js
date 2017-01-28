@@ -39,6 +39,17 @@ function findById(id) {
     });
 }
 
+function findAll() {
+  return userModel.findAll()
+    .then(users => {
+      // model should do this but lets be sure
+      return _.map(users, user => {
+        delete user.password;
+        return user;
+      });
+    });
+}
+
 function updateById(id, updObj) {
   return userModel.updateById(id, updObj)
     .then(n => {
@@ -61,6 +72,7 @@ module.exports = {
   createUser,
   validateUser,
   findById,
+  findAll,
   updateById,
   deleteById,
 };
