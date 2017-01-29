@@ -19,7 +19,10 @@ passport.use('jwt-refresh', new JwtStrategy(
   jwtRefreshOptions,
   (req, payload, done) => {
     if (payload.sub === 'refresh' && payload.aud === 'v1/auth') {
-      return done(null, payload.user);
+      // re-get user from db to have up to date role
+      return userService.findById(payload.user.id)
+        .then(user => done(null, user))
+        .catch(done);
     }
     req.message = 'invalid token subject or audience';
     done(null, false);
@@ -34,7 +37,10 @@ passport.use('jwt-access', new JwtStrategy(
     const validAudiences = ['v1/users', 'v1/expenses'];
     const hasValidAudiences = _.isEmpty(_.difference(audiences, validAudiences));
     if (payload.sub === 'access' && hasValidAudiences) {
-      return done(null, payload.user);
+      // re-get user from db to have up to date role
+      return userService.findById(payload.user.id)
+        .then(user => done(null, user))
+        .catch(done);
     }
     req.message = 'invalid token subject or audience';
     done(null, false);

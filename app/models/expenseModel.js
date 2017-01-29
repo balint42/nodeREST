@@ -12,8 +12,12 @@ const expense = mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', index: true },
   amount: { type: Number, index: true },
   datetime: { type: Date, default: Date.now, index: true },
-  description: { type: String, index: 'text' },
-  comment: { type: String, default: null, index: 'text' },
+  description: { type: String },
+  comment: { type: String, default: null },
+});
+expense.index({
+  description: 'text',
+  comment: 'text',
 });
 
 function toObject(res) {
@@ -58,8 +62,7 @@ function _replaceDatetimeWithDateAndTime(params) {
  * @param {number} [params.maxAmount] - number with max amount
  * @param {Object} [params.minDate] - momentjs object with min date
  * @param {Object} [params.maxDate] - momentjs object with max date
- * @param {string} [params.description] - string that must be found in description
- * @param {string} [params.comment] - string that must be found in comment
+ * @param {string} [params.text] - search string in description or comment
  */
 expense.statics.findBy = function(params) {
   return Promise.fromCallback(cb => {
@@ -102,18 +105,10 @@ expense.statics.findBy = function(params) {
     if (params.maxAmount) {
       stage1.$match.amount.$lte = params.maxAmount;
     }
-    if (params.description) {
-      stage1.$match.description = {
+    if (params.text) {
+      stage1.$match = {
         $text: {
-          $search: params.description,
-          $language: 'english',
-        },
-      };
-    }
-    if (params.comment) {
-      stage1.$match.comment = {
-        $text: {
-          $search: params.comment,
+          $search: params.text,
           $language: 'english',
         },
       };

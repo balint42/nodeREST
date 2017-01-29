@@ -39,49 +39,52 @@
   </script>
 </head>
 <body>
-  <div class="ui container">
-    <a class="launch icon item" id="menuShowStats">
-      <i class="big link icons">
-        <i class="content icon"></i>
-        <i class="corner line chart icon"></i>
-      </i>
-    </a>
-    <a class="launch icon item" id="menuRefresh">
-      <i class="big link icons">
-        <i class="content icon"></i>
-        <i class="corner refresh icon"></i>
-      </i>
-    </a>
-    <a class="launch icon item" id="menuAdd">
-      <i class="big link icons">
-        <i class="content icon"></i>
-        <i class="corner add icon"></i>
-      </i>
-    </a>
-    <a class="launch icon item" id="menuRefreshUsers">
-      <i class="big link icons">
-        <i class="user icon"></i>
-        <i class="corner refresh icon"></i>
-      </i>
-    </a>
-    <a class="launch icon item" id="menuSignin">
-      <i class="big link icons">
-        <i class="user icon"></i>
-        <i class="corner sign in icon"></i>
-      </i>
-    </a>
-    <a class="launch icon item" id="menuSignout">
-      <i class="big link icons">
-        <i class="user icon"></i>
-        <i class="corner sign out icon"></i>
-      </i>
-    </a>
-    <a class="launch icon item" id="menuSignup">
-      <i class="big link icons">
-        <i class="user icon"></i>
-        <i class="corner plus icon"></i>
-      </i>
-    </a>
+  <div class="ui menu">
+    <div class="ui container">
+      <a class="icon item" id="menuShowStats">
+        <i class="big link icons">
+          <i class="blue content icon"></i>
+          <i class="orange corner line chart icon"></i>
+        </i>
+      </a>
+      <a class="icon item" id="menuRefresh">
+        <i class="big link icons">
+          <i class="blue content icon"></i>
+          <i class="orange corner refresh icon"></i>
+        </i>
+      </a>
+      <a class="icon item" id="menuAdd">
+        <i class="big link icons">
+          <i class="blue content icon"></i>
+          <i class="orange corner add icon"></i>
+        </i>
+      </a>
+      <a class="icon item" id="menuRefreshUsers">
+        <i class="big link icons">
+          <i class="blue user icon"></i>
+          <i class="orange corner refresh icon"></i>
+        </i>
+      </a>
+      <a class="icon item" id="menuSignin">
+        <i class="big link icons">
+          <i class="blue user icon"></i>
+          <i class="orange corner sign in icon"></i>
+        </i>
+      </a>
+      <a class="icon item" id="menuSignout">
+        <i class="big link icons">
+          <i class="blue user icon"></i>
+          <i class="orange corner sign out icon"></i>
+        </i>
+      </a>
+      <a class="icon item" id="menuSignup">
+        <i class="big link icons">
+          <i class="blue user icon"></i>
+          <i class="orange corner plus icon"></i>
+        </i>
+      </a>
+    </div>
+    <div id="currentUser" class="right item"></div>
   </div>
   <div class="ui container" id="filters1">
     <div class="ui form">
@@ -149,19 +152,10 @@
         </div>
         <div class="three wide field">
           <div class="ui mini right labeled left icon input">
-            <input placeholder="title..." name="description" type="text">
+            <input placeholder="search terms..." name="text" type="text">
             <i class="search icon"></i>
             <a class="ui tag label">
-              title
-            </a>
-          </div>
-        </div>
-        <div class="three wide field">
-          <div class="ui mini right labeled left icon input">
-            <input placeholder="comment..." name="comment" type="text">
-            <i class="search icon"></i>
-            <a class="ui tag label">
-              comment
+              search
             </a>
           </div>
         </div>

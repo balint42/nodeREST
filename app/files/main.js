@@ -32,16 +32,27 @@ window.onload = () => {
         setUiState(this.__ro);
         localStorage.setItem('tokens', JSON.stringify(tokens));
       }
-    }
+    },
+    email: {
+      get: function() { return this.__em; },
+      set: function(val) {
+        this.__em = val;
+        setUiState(this.__ro);
+        localStorage.setItem('tokens', JSON.stringify(tokens));
+      }
+    },
   });
   var storedTokens = JSON.parse(localStorage.getItem('tokens'));
   if (storedTokens) {
     tokens.access = storedTokens.__a;
     tokens.refresh = storedTokens.__r;
     tokens.role = storedTokens.__ro;
+    tokens.email = storedTokens.__em;
   }
   function setUiState(state) {
+    $('#currentUser').text('');
     if (state) {
+      $('#currentUser').append(tokens ? tokens.email + ' | ' + roleNames[tokens.role] : '');
       ['#menuAdd', '#menuRefresh', '#menuShowStats', '#menuSignout'].forEach(function(id) {
         $(id + ' .icon').removeClass('disabled');
         $(id).css('pointerEvents', 'auto');
@@ -50,6 +61,9 @@ window.onload = () => {
       ['#menuAdd', '#menuRefresh', '#menuShowStats', '#menuSignout'].forEach(function(id) {
         $(id + ' .icon').addClass('disabled');
         $(id).css('pointerEvents', 'none');
+        $('.ui.list').children().remove();
+        $('.ui.grid').children().remove();
+        $('.ui.grid').children().remove();
       });
     }
     if (state > 1) {
@@ -99,7 +113,7 @@ window.onload = () => {
       $('#expensePatch').find('input[name=comment]').val(item.data('comment'));
       $('#expensePatch').find('input[name=date]').val(item.data('date'));
       $('#expensePatch').find('input[name=time]').val(item.data('time'));
-      $('#expensePatch').modal('show');
+      showModal('#expensePatch');
    });
    return res;
   }
@@ -130,7 +144,7 @@ window.onload = () => {
       $('#userPatch').data('id', item.data('id'));
       $('#userPatch').find('input[name=email]').val(item.data('email'));
       $('#userPatch').find('input[name=role]').val(item.data('role'));
-      $('#userPatch').modal('show');
+      showModal('#userPatch');
     });
     return res;
   }
@@ -221,7 +235,8 @@ window.onload = () => {
     $('#filters2 .ui.form').submit();
     errorCount = $('#filters1 .ui.error div').length + $('#filters2 .ui.error div').length;
     if(errorCount !== 0) return;
-    $.ajax({
+    updateToken(function() {
+      $.ajax({
         url: './v1/expenses',
         method: 'GET',
         headers: { 'Authorization': 'Bearer ' + tokens.access },
@@ -232,8 +247,7 @@ window.onload = () => {
           maxTime: $('#filters1 .ui.form input[name=maxTime]').val(),
           minAmount: $('#filters2 .ui.form input[name=minAmount]').val(),
           maxAmount: $('#filters2 .ui.form input[name=maxAmount]').val(),
-          description: $('#filters2 .ui.form input[name=description]').val(),
-          comment: $('#filters2 .ui.form input[name=comment]').val(),
+          text: $('#filters2 .ui.form input[name=text]').val(),
         },
       })
       .done(function(res) {
@@ -245,17 +259,13 @@ window.onload = () => {
           });
         }
       })
-      .fail(function(res) {
-        if (res.responseText === 'Unauthorized') {
-          updateToken(function() {
-            $(target).click();
-          });
-        };
-      });
+      .fail(function(res) {});
+    });
   }
   function refreshUsers() {
     var target = $('#menuRefreshUsers');
-    $.ajax({
+    updateToken(function() {
+      $.ajax({
         url: './v1/users',
         method: 'GET',
         headers: { 'Authorization': 'Bearer ' + tokens.access },
@@ -270,13 +280,8 @@ window.onload = () => {
           });
         }
       })
-      .fail(function(res) {
-        if (res.responseText === 'Unauthorized') {
-          updateToken(function() {
-            $(target).click();
-          });
-        };
-      });
+      .fail(function(res) {});
+    });
   }
   function showStats() {
     if ($('.ui.list *').length === 0) return;
@@ -286,8 +291,9 @@ window.onload = () => {
   }
   function removeExpense() {
     var target = this;
-    var id = $(this).closest('.item').data('id');
-    $.ajax({
+    updateToken(function() {
+      var id = $(this).closest('.item').data('id');
+      $.ajax({
         url: './v1/expenses/' + id,
         method: 'DELETE',
         headers: { 'Authorization': 'Bearer ' + tokens.access },
@@ -296,18 +302,14 @@ window.onload = () => {
       .done(function(res, textStatus) {
         $(target).closest('.item').remove();
       })
-      .fail(function(res, textStatus) {
-        if (res.responseText === 'Unauthorized') {
-          updateToken(function() {
-            $(target).click();
-          });
-        };
-      });
+      .fail(function(res, textStatus) {});
+    });
   }
   function removeUser() {
     var target = this;
     var id = $(this).closest('.item').data('id');
-    $.ajax({
+    updateToken(function() {
+      $.ajax({
         url: './v1/users/' + id,
         method: 'DELETE',
         headers: { 'Authorization': 'Bearer ' + tokens.access },
@@ -316,24 +318,24 @@ window.onload = () => {
       .done(function(res, textStatus) {
         $(target).closest('.item').remove();
       })
-      .fail(function(res, textStatus) {
-        if (res.responseText === 'Unauthorized') {
-          updateToken(function() {
-            $(target).click();
-          });
-        };
-      });
+      .fail(function(res, textStatus) {});
+    });
+  }
+  function showModal(id) {
+    $(id + ' .ui.form .message').remove();
+    $(id).modal('show');
   }
   // click menu icons
-  $('#menuSignup').on('click', function() { $('#signup').modal('show'); });
-  $('#menuSignin').on('click', function() { $('#signin').modal('show'); });
+  $('#menuSignup').on('click', function() { showModal('#signup'); });
+  $('#menuSignin').on('click', function() { showModal('#signin'); });
   $('#menuSignout').on('click', function() {
     tokens.refresh = null;
     tokens.access = null;
     tokens.role = null;
+    tokens.email = null;
     localStorage.removeItem('tokens');
   });
-  $('#menuAdd').on('click', function() { $('#expensePost').modal('show'); });
+  $('#menuAdd').on('click', function() { showModal('#expensePost'); });
   $('#menuRefresh').on('click', refreshExpenses);
   $('#menuRefreshUsers').on('click', refreshUsers);
   $('#menuShowStats').on('click', showStats);
@@ -402,6 +404,7 @@ window.onload = () => {
       tokens.access = res.accessToken;
       tokens.refresh = res.refreshToken;
       tokens.role = res.role;
+      tokens.email = this._email;
       $('#signin .ui.form .message').remove();
       appendMessage({
         message: 'success signing in',
@@ -409,6 +412,7 @@ window.onload = () => {
         parent: $('#signin .ui.form'),
       });
       refreshExpenses();
+      $('#signin').modal('hide');
     },
     onFailure: function(res) {
       $('#signin .ui.form .message:has(.icon.close)').remove();
@@ -420,8 +424,9 @@ window.onload = () => {
     },
     beforeSend: function(settings) {
       var pw = $('#signin .ui.form input[name=password]').val();
+      this._email = $('#signin .ui.form input[name=email]').val();
       settings.data = {
-        email: $('#signin .ui.form input[name=email]').val(),
+        email: this._email,
         password: pw ? CryptoJS.MD5(pw).toString() : pw,
       }
       return settings;

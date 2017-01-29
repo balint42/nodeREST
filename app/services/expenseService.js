@@ -45,8 +45,7 @@ function findBy(query, user) {
     'maxTime',
     'minAmount',
     'maxAmount',
-    'description',
-    'comment'
+    'text'
   );
   const findOnlyOwn = user.role !== config.roles.admin;
   if (findOnlyOwn) {

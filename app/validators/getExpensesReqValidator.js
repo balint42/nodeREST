@@ -11,11 +11,8 @@ function sanitize(req) {
   if (req.query.maxAmount) {
     req.query.maxAmount = Math.round(parseFloat(req.query.maxAmount) * 100) / 100;
   }
-  if (req.query.description) {
-    req.query.description = _.trim(req.query.description);
-  }
-  if (req.query.comment) {
-    req.query.comment = _.trim(req.query.comment);
+  if (req.query.text) {
+    req.query.text = _.trim(req.query.text);
   }
   if (req.query.minDate) {
     req.query.minDate = _.trim(req.query.minDate);
