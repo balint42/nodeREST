@@ -14,6 +14,7 @@ window.onload = () => {
       set: function(val) {
         this.__a = val;
         setUiState(val && this.__r);
+        localStorage.setItem('tokens', JSON.stringify(tokens));
       }
     },
     refresh: {
@@ -21,6 +22,7 @@ window.onload = () => {
       set: function(val) {
         this.__r = val;
         setUiState(val && this.__a);
+        localStorage.setItem('tokens', JSON.stringify(tokens));
       }
     },
     role: {
@@ -28,17 +30,24 @@ window.onload = () => {
       set: function(val) {
         this.__ro = parseInt(val);
         setUiState(this.__ro);
+        localStorage.setItem('tokens', JSON.stringify(tokens));
       }
     }
   });
+  var storedTokens = JSON.parse(localStorage.getItem('tokens'));
+  if (storedTokens) {
+    tokens.access = storedTokens.__a;
+    tokens.refresh = storedTokens.__r;
+    tokens.role = storedTokens.__ro;
+  }
   function setUiState(state) {
     if (state) {
-      ['#menuAdd', '#menuRefresh', '#menuShowStats'].forEach(function(id) {
+      ['#menuAdd', '#menuRefresh', '#menuShowStats', '#menuSignout'].forEach(function(id) {
         $(id + ' .icon').removeClass('disabled');
         $(id).css('pointerEvents', 'auto');
       });
     } else {
-      ['#menuAdd', '#menuRefresh', '#menuShowStats'].forEach(function(id) {
+      ['#menuAdd', '#menuRefresh', '#menuShowStats', '#menuSignout'].forEach(function(id) {
         $(id + ' .icon').addClass('disabled');
         $(id).css('pointerEvents', 'none');
       });
@@ -318,6 +327,12 @@ window.onload = () => {
   // click menu icons
   $('#menuSignup').on('click', function() { $('#signup').modal('show'); });
   $('#menuSignin').on('click', function() { $('#signin').modal('show'); });
+  $('#menuSignout').on('click', function() {
+    tokens.refresh = null;
+    tokens.access = null;
+    tokens.role = null;
+    localStorage.removeItem('tokens');
+  });
   $('#menuAdd').on('click', function() { $('#expensePost').modal('show'); });
   $('#menuRefresh').on('click', refreshExpenses);
   $('#menuRefreshUsers').on('click', refreshUsers);
