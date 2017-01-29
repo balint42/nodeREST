@@ -15,12 +15,13 @@ function requireAuth(req, res, next) {
   }
 }
 
-function requireRole(minRole) {
+function requireRole(fixedMinRole) {
   return (req, res, next) => {
-    if (! minRole) minRole = req.minRole; // eslint-disable-line
-    if (req.user.role < 1) {
+    const minRole = fixedMinRole || req.minRole;
+    if (! _.has(req.user, 'role')) {
+      res.status(403).send();
+    } else if (req.user.role < 1) {
       // FAIL: role < 1
-      req.logout();
       req.message = 'you have been banned';
       res.status(403).send();
     } else if (req.user.role < parseInt(minRole)) {
