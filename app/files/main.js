@@ -7,8 +7,8 @@ $.fn.findByData = function(attr, val) {
 // window.onload waits until all JS loaded, document.ready does not
 window.onload = () => {
   setUiState(false);
-  const roleNames = ['', 'user', 'manager', 'admin'];
-  const tokens = Object.create(Object.prototype, {
+  var roleNames = ['', 'user', 'manager', 'admin'];
+  var tokens = Object.create(Object.prototype, {
     access: {
       get: function() { return this.__a; },
       set: function(val) {
@@ -57,7 +57,7 @@ window.onload = () => {
   }
   function createExpense(params) {
     // create new item with jQuery superpowers!
-    const res = $(
+    var res = $(
       '<div class="item" ' +
         'data-id="' + params.id + '" ' +
         'data-amount="' + parseFloat(params.amount).toLocaleString() + '"' +
@@ -83,7 +83,7 @@ window.onload = () => {
     );
     $(res).find('.remove.icon').on('click', removeExpense);
     $(res).find('.edit.icon').on('click', function() {
-      const item = $(this).closest('.item');
+      var item = $(this).closest('.item');
       $('#expensePatch').data('id', item.data('id'));
       $('#expensePatch').find('input[name=amount]').val(item.data('amount'));
       $('#expensePatch').find('input[name=description]').val(item.data('description'));
@@ -96,7 +96,7 @@ window.onload = () => {
   }
   function createUser(params) {
     // create new item with jQuery superpowers!
-    const res = $(
+    var res = $(
       '<div class="item" ' +
         'data-id="' + params.id + '" ' +
         'data-email="' + params.email + '"' +
@@ -117,7 +117,7 @@ window.onload = () => {
     );
     $(res).find('.remove.icon').on('click', removeUser);
     $(res).find('.edit.icon').on('click', function() {
-      const item = $(this).closest('.item');
+      var item = $(this).closest('.item');
       $('#userPatch').data('id', item.data('id'));
       $('#userPatch').find('input[name=email]').val(item.data('email'));
       $('#userPatch').find('input[name=role]').val(item.data('role'));
@@ -129,7 +129,7 @@ window.onload = () => {
     var years = {};
     $('.ui.list .item').each(function(idx, item) {
       var expense = $(item).data();
-      expense.amount = parseFloat(expense.amount.replace(',', '.'));
+      expense.amount = parseFloat(expense.amount.toString().replace(',', '.'));
       var year = moment(expense.date + 'T' + expense.time + 'Z').year();
       var week = moment(expense.date + 'T' + expense.time + 'Z').week();
       var day = moment(expense.date + 'T' + expense.time + 'Z').day();
@@ -154,6 +154,7 @@ window.onload = () => {
           dayAvgsTotal += dayAvg;
         });
         var dailyAvg = Math.round(dayAvgsTotal / dayAvgs.length * 100) / 100;
+        var weekTotal = Math.round(weekObj.amount * 100) / 100;
         // create grid item
         var color = [
           'teal', 'red', 'orange', 'yellow', 'olive', 'green', 'blue',
@@ -162,7 +163,7 @@ window.onload = () => {
         var i = $(
           '<div class="' + color + ' column">' +
             '<h2>week' + week + '</h2>' +
-            '<h3>total &nbsp;&nbsp;&nbsp;' + weekObj.amount + '</h3>' +
+            '<h3>total &nbsp;&nbsp;&nbsp;' + weekTotal + '</h3>' +
             '<h3>daily Ø ' + dailyAvg + '</h3>' +
           '</div>'
         );
@@ -244,7 +245,7 @@ window.onload = () => {
       });
   }
   function refreshUsers() {
-    const target = $('#menuRefreshUsers');
+    var target = $('#menuRefreshUsers');
     $.ajax({
         url: './v1/users',
         method: 'GET',
@@ -275,8 +276,8 @@ window.onload = () => {
     $('.ui.list').children().remove();
   }
   function removeExpense() {
-    const target = this;
-    const id = $(this).closest('.item').data('id');
+    var target = this;
+    var id = $(this).closest('.item').data('id');
     $.ajax({
         url: './v1/expenses/' + id,
         method: 'DELETE',
@@ -295,8 +296,8 @@ window.onload = () => {
       });
   }
   function removeUser() {
-    const target = this;
-    const id = $(this).closest('.item').data('id');
+    var target = this;
+    var id = $(this).closest('.item').data('id');
     $.ajax({
         url: './v1/users/' + id,
         method: 'DELETE',
@@ -370,7 +371,7 @@ window.onload = () => {
       });
     },
     beforeSend: function(settings) {
-      const pw = $('#signup .ui.form input[name=password]').val();
+      var pw = $('#signup .ui.form input[name=password]').val();
       settings.data = {
         email: $('#signup .ui.form input[name=email]').val(),
         password: pw ? CryptoJS.MD5(pw).toString() : pw,
@@ -403,7 +404,7 @@ window.onload = () => {
       });
     },
     beforeSend: function(settings) {
-      const pw = $('#signin .ui.form input[name=password]').val();
+      var pw = $('#signin .ui.form input[name=password]').val();
       settings.data = {
         email: $('#signin .ui.form input[name=email]').val(),
         password: pw ? CryptoJS.MD5(pw).toString() : pw,
@@ -426,7 +427,7 @@ window.onload = () => {
     },
     onFailure: function(res) {
       if (res === 'Unauthorized') {
-        const target = this;
+        var target = this;
         updateToken(function() {
           $(target).click();
         });
@@ -467,7 +468,7 @@ window.onload = () => {
     },
     onFailure: function(res) {
       if (res === 'Unauthorized') {
-        const target = this;
+        var target = this;
         updateToken(function() {
           $(target).click();
         });
@@ -509,7 +510,7 @@ window.onload = () => {
     },
     onFailure: function(res) {
       if (res === 'Unauthorized') {
-        const target = this;
+        var target = this;
         updateToken(function() {
           $(target).click();
         });
@@ -522,7 +523,7 @@ window.onload = () => {
       });
     },
     beforeSend: function(settings) {
-      const roleNumber = roleNames.indexOf($('#userPatch .ui.form input[name=role]').val());
+      var roleNumber = roleNames.indexOf($('#userPatch .ui.form input[name=role]').val());
       settings.data = {
         email: $('#userPatch .ui.form input[name=email]').val(),
         role: roleNumber,
