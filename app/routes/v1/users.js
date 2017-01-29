@@ -26,17 +26,34 @@ function createCheck(validator) {
 }
 
 const setMinimumRole = (req, res, next) => {
-  // set required minimum role
-  const isUserSet = !! req.user.id;
-  const isOwn = _.toString(req.body.userId) === _.toString(req.user.id);
-  if (isUserSet && isOwn) {
+  // in case of no current user require admin - requireRole will reject
+  if (! req.user.id) {
+    req.minRole = config.roles.admin;
+    return next();
+  }
+  // in case of no user to be modified (list view) require manager
+  if (! req.params.userId) {
+    req.minRole = config.roles.manager;
+    return next();
+  }
+  // in cases of specific user to be modified
+  const isOwn = _.toString(req.params.userId) === _.toString(req.user.id);
+  if (isOwn) {
     // user has to have min the role he tries to update to
     req.minRole = _.max([req.body.role, config.roles.user]);
-  } else {
-    // user has to have min the role he tries to update to
-    req.minRole = _.max([config.roles.manager, req.body.role]);
+    return next();
   }
-  next();
+  // find user trying to modify
+  userService.findById(req.params.userId)
+    .then(user => {
+      req.minRole = _.max([
+        config.roles.manager, // min manager role
+        req.body.role,        // min role trying to patch to
+        user.role,            // min role trying to modify
+      ]);
+      next();
+    })
+    .catch(next);
 };
 const passportOpt = { failureFlash: false, session: false };
 

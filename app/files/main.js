@@ -516,7 +516,7 @@ window.onload = () => {
       };
       $('#userPatch .ui.form .message:has(.icon.close)').remove();
       appendMessage({
-        message: res.message || res.status || res,
+        message: res.message || res || 'Unauthorized',
         type: 'error',
         parent: $('#userPatch .ui.form'),
       });

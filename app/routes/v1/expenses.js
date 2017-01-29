@@ -87,6 +87,7 @@ router.route('/expenses')
   .get(createCheck(getExpensesReqValidator))
   .get(
     passport.authenticate('jwt-access', passportOpt),
+    utils.requireRole(config.roles.user),
     (req, res) => {
       expenseService.findBy(req.query, req.user)
         .then(expenses => {
