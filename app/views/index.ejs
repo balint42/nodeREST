@@ -40,10 +40,10 @@
 </head>
 <body>
   <div class="ui container">
-    <a class="launch icon item" id="menuRefreshUsers">
+    <a class="launch icon item" id="menuShowStats">
       <i class="big link icons">
-        <i class="user icon"></i>
-        <i class="corner refresh icon"></i>
+        <i class="content icon"></i>
+        <i class="corner line chart icon"></i>
       </i>
     </a>
     <a class="launch icon item" id="menuRefresh">
@@ -56,6 +56,12 @@
       <i class="big link icons">
         <i class="content icon"></i>
         <i class="corner add icon"></i>
+      </i>
+    </a>
+    <a class="launch icon item" id="menuRefreshUsers">
+      <i class="big link icons">
+        <i class="user icon"></i>
+        <i class="corner refresh icon"></i>
       </i>
     </a>
     <a class="launch icon item" id="menuSignin">
@@ -212,7 +218,7 @@
             <input name="email" placeholder="your@email.com" type="email">
           </div>
           <div class="field">
-            <a class="ui red ribbon label">Role</a>
+            <a class="ui red ribbon label">Role</a>(user | manager | admin)
             <input name="role" placeholder="user | manager | admin" type="text">
           </div>
         <div class="ui primary submit button">Submit</div>
@@ -285,6 +291,9 @@
         <div class="ui error message"></div>
       </div>
     </div>
+  </div>
+
+  <div class="ui five column stackable padded grid">
   </div>
 
   <div class="ui middle aligned divided list">
