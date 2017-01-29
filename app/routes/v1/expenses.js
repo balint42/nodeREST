@@ -33,7 +33,7 @@ const setMinimumRole = (req, res, next) => {
         res.status(404).send();
       }
       // set required minimum role
-      if (expense.userId == req.user.id) { // eslint-disable-line
+      if (_.toString(expense.userId) === _.toString(req.user.id)) {
         req.minRole = config.roles.user;
       } else {
         req.minRole = config.roles.admin;
