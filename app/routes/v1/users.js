@@ -27,12 +27,14 @@ function createCheck(validator) {
 
 const setMinimumRole = (req, res, next) => {
   // set required minimum role
-  if (req.user.id && _.toString(req.params.userId) === _.toString(req.user.id)) {
+  const isUserSet = !! req.user.id;
+  const isOwn = _.toString(req.body.userId) === _.toString(req.user.id);
+  if (isUserSet && isOwn) {
     // user has to have min the role he tries to update to
-    req.minRole = req.params.role || config.roles.user;
+    req.minRole = _.max([req.body.role, config.roles.user]);
   } else {
     // user has to have min the role he tries to update to
-    req.minRole = Math.max(config.roles.manager, req.params.role || config.roles.manager);
+    req.minRole = _.max([config.roles.manager, req.body.role]);
   }
   next();
 };
