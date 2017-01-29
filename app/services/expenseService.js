@@ -15,15 +15,21 @@ function extendWithUsers(expenses) {
   const expensesGroupedByUser = _.map(ownerIds, ownerId => {
     return userModel.findById(ownerId)
       .then(user => {
+        if (! user) throw new VError('owner of expense not found');
         const expensesWithUser = _.map(
           _.filter(expenses, exp => _.toString(exp.userId) === _.toString(user.id)),
           exp => _.extend(exp, { user })
         );
         return expensesWithUser;
       })
-      .catch(err =>
-        logger.error(`Error getting owner: ${utils.errorToString(err)}`)
-      );
+      .catch(err => {
+        logger.info(`Error getting owner: ${utils.errorToString(err)}`);
+        const expensesWithoutUser = _.map(
+          _.filter(expenses, exp => _.toString(exp.userId) === _.toString(ownerId)),
+          exp => _.extend(exp, { user: {} })
+        );
+        return expensesWithoutUser;
+      });
   });
   return Promise.all(expensesGroupedByUser)
     .then(_.flatten);
