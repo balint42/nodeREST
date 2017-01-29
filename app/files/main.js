@@ -33,12 +33,12 @@ window.onload = () => {
   });
   function setUiState(state) {
     if (state) {
-      ['#menuAdd', '#menuRefresh'].forEach(function(id) {
+      ['#menuAdd', '#menuRefresh', '#menuShowStats'].forEach(function(id) {
         $(id + ' .icon').removeClass('disabled');
         $(id).css('pointerEvents', 'auto');
       });
     } else {
-      ['#menuAdd', '#menuRefresh'].forEach(function(id) {
+      ['#menuAdd', '#menuRefresh', '#menuShowStats'].forEach(function(id) {
         $(id + ' .icon').addClass('disabled');
         $(id).css('pointerEvents', 'none');
       });
@@ -77,7 +77,7 @@ window.onload = () => {
           '<a class="header">' + params.date + ' @ ' + params.time + '</a>' +
           '<a class="header">' + params.description + ' — ' + params.amount + ' $</a>' +
           '<div class="description">' + params.comment + '</div>' +
-          '<div class="description">' + params.user.email + '</div>' +
+          '<div class="description">' + (params.user.email || 'deleted user') + '</div>' +
         '</div>' +
       '</div>'
     );
@@ -125,6 +125,54 @@ window.onload = () => {
     });
     return res;
   }
+  function createStats() {
+    var years = {};
+    $('.ui.list .item').each(function(idx, item) {
+      var expense = $(item).data();
+      expense.amount = parseFloat(expense.amount.replace(',', '.'));
+      var year = moment(expense.date + 'T' + expense.time + 'Z').year();
+      var week = moment(expense.date + 'T' + expense.time + 'Z').week();
+      var day = moment(expense.date + 'T' + expense.time + 'Z').day();
+      if (! years[year]) years[year] = { weeks: {} };
+      if (! years[year].weeks[week]) years[year].weeks[week] = { amount: 0, days: {} };
+      if (! years[year].weeks[week].days[day]) years[year].weeks[week].days[day] = { amount: 0, count: 0 };
+      years[year].weeks[week].amount += expense.amount;
+      years[year].weeks[week].count++;
+      years[year].weeks[week].days[day].amount += expense.amount;
+      years[year].weeks[week].days[day].count++;
+    });
+    var gridItems = $.map(years, function(yearObj, year) {
+      var items = [$('<div class="sixteen wide column">' + year + '</div>')];
+      var weekItems = $.map(yearObj.weeks, function(weekObj, week) {
+        // averages of each day
+        var dayAvgs = $.map(weekObj.days, function(dayObj, day) {
+          return dayObj.amount / dayObj.count;
+        });
+        // average of day averages
+        var dayAvgsTotal = 0;
+        dayAvgs.forEach(function(dayAvg) {
+          dayAvgsTotal += dayAvg;
+        });
+        var dailyAvg = Math.round(dayAvgsTotal / dayAvgs.length * 100) / 100;
+        // create grid item
+        var color = [
+          'teal', 'red', 'orange', 'yellow', 'olive', 'green', 'blue',
+          'violet', 'purple', 'pink', 'brown', 'brown', 'black'
+        ][Math.round(Math.random() * 12)];
+        var i = $(
+          '<div class="' + color + ' column">' +
+            '<h2>week' + week + '</h2>' +
+            '<h3>total &nbsp;&nbsp;&nbsp;' + weekObj.amount + '</h3>' +
+            '<h3>daily Ø ' + dailyAvg + '</h3>' +
+          '</div>'
+        );
+        return i;
+      });
+      items = items.concat(weekItems);
+      return items;
+    });
+    return $.map(gridItems, function(v) { return v; });
+  }
   function appendMessage(params) {
     $(params.parent).addClass(params.type);
     $(params.parent).append(
@@ -158,7 +206,7 @@ window.onload = () => {
       });
   }
   function refreshExpenses() {
-    const target = $('#menuRefresh');
+    var target = $('#menuRefresh');
     $('#filters1 .ui.form').submit();
     $('#filters2 .ui.form').submit();
     errorCount = $('#filters1 .ui.error div').length + $('#filters2 .ui.error div').length;
@@ -181,6 +229,7 @@ window.onload = () => {
       .done(function(res) {
         if (Array.isArray(res)) {
           $('.ui.list').children().remove();
+          $('.ui.grid').children().remove();
           res.forEach(expense => {
             $('.ui.list').append(createExpense(expense));
           });
@@ -205,6 +254,7 @@ window.onload = () => {
       .done(function(res) {
         if (Array.isArray(res)) {
           $('.ui.list').children().remove();
+          $('.ui.grid').children().remove();
           res.forEach(user => {
             $('.ui.list').append(createUser(user));
           });
@@ -217,6 +267,12 @@ window.onload = () => {
           });
         };
       });
+  }
+  function showStats() {
+    if ($('.ui.list *').length === 0) return;
+    $('.ui.grid').children().remove();
+    $('.ui.grid').append(createStats());
+    $('.ui.list').children().remove();
   }
   function removeExpense() {
     const target = this;
@@ -264,6 +320,7 @@ window.onload = () => {
   $('#menuAdd').on('click', function() { $('#expensePost').modal('show'); });
   $('#menuRefresh').on('click', refreshExpenses);
   $('#menuRefreshUsers').on('click', refreshUsers);
+  $('#menuShowStats').on('click', showStats);
   // define API endpoints
   $.fn.api.settings.api = {
     'users': '/v1/users',
@@ -281,8 +338,16 @@ window.onload = () => {
     try { return moment(value ? '2017-01-01T' + value + 'Z' : undefined).isValid(); }
     catch(e) { return false; }
   };
+  $.fn.form.settings.rules.validMinDate = function(value) {
+    // if min time has value, require min date value too
+    return $('input[name=minTime]').val() ? !! value : true;
+  };
+  $.fn.form.settings.rules.validMaxDate = function(value) {
+    // if max time has value, require max date value too
+    return $('input[name=maxTime]').val() ? !! value : true;
+  };
   $.fn.form.settings.rules.validRole = function(value) {
-    return !! roleNames[value];
+    return roleNames.indexOf(value) > 0;
   };
   // signup api settings
   $('#signup .ui.submit.button').api({
@@ -440,7 +505,7 @@ window.onload = () => {
         type: 'success',
         parent: $('#userPatch .ui.form'),
       });
-      refreshExpenses();
+      refreshUsers();
     },
     onFailure: function(res) {
       if (res === 'Unauthorized') {
@@ -451,15 +516,16 @@ window.onload = () => {
       };
       $('#userPatch .ui.form .message:has(.icon.close)').remove();
       appendMessage({
-        message: res.message || res,
+        message: res.message || res.status || res,
         type: 'error',
         parent: $('#userPatch .ui.form'),
       });
     },
     beforeSend: function(settings) {
+      const roleNumber = roleNames.indexOf($('#userPatch .ui.form input[name=role]').val());
       settings.data = {
         email: $('#userPatch .ui.form input[name=email]').val(),
-        role: $('#userPatch .ui.form input[name=role]').val(),
+        role: roleNumber,
       };
       settings.urlData = { id: $('#userPatch').data('id') };
       return settings;
@@ -501,8 +567,8 @@ window.onload = () => {
   // filters1 form validation
   $('#filters1 .ui.form').form({
     fields: {
-      minDate: ['validDate'],
-      maxDate: ['validDate'],
+      minDate: ['validDate', 'validMinDate'],
+      maxDate: ['validDate', 'validMaxDate'],
       minTime: ['validTime'],
       maxTime: ['validTime'],
     }
