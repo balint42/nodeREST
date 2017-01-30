@@ -13,7 +13,12 @@ window.onload = () => {
       get: function() { return this.__a; },
       set: function(val) {
         this.__a = val;
-        setUiState(val && this.__r);
+        var jwtObj = val ? jwt_decode(val) : null;
+        if (jwtObj) {
+          this.__ro = parseInt(jwtObj.user.role);
+          this.__em = jwtObj.user.email;
+        }
+        setUiState(this.__a && this.__r ? this.__ro : false);
         localStorage.setItem('tokens', JSON.stringify(tokens));
       }
     },
@@ -21,7 +26,12 @@ window.onload = () => {
       get: function() { return this.__r; },
       set: function(val) {
         this.__r = val;
-        setUiState(val && this.__a);
+        var jwtObj = val ? jwt_decode(val) : null;
+        if (jwtObj) {
+          this.__ro = parseInt(jwtObj.user.role);
+          this.__em = jwtObj.user.email;
+        }
+        setUiState(this.__r && this.__a ? this.__ro : false);
         localStorage.setItem('tokens', JSON.stringify(tokens));
       }
     },
@@ -222,7 +232,6 @@ window.onload = () => {
       })
       .done(function(res) {
         if (res.accessToken) tokens.access = res.accessToken;
-        if (res.role) tokens.role = res.role;
         cb();
       })
       .fail(function(res) {
@@ -231,6 +240,8 @@ window.onload = () => {
   }
   function refreshExpenses() {
     var target = $('#menuRefresh');
+    $('#filters1').show();
+    $('#filters2').show();
     $('#filters1 .ui.form').submit();
     $('#filters2 .ui.form').submit();
     errorCount = $('#filters1 .ui.error div').length + $('#filters2 .ui.error div').length;
@@ -264,6 +275,8 @@ window.onload = () => {
   }
   function refreshUsers() {
     var target = $('#menuRefreshUsers');
+    $('#filters1').hide();
+    $('#filters2').hide();
     updateToken(function() {
       $.ajax({
         url: './v1/users',
@@ -284,6 +297,8 @@ window.onload = () => {
     });
   }
   function showStats() {
+    $('#filters1').hide();
+    $('#filters2').hide();
     if ($('.ui.list *').length === 0) return;
     $('.ui.grid').children().remove();
     $('.ui.grid').append(createStats());
@@ -403,8 +418,6 @@ window.onload = () => {
     onSuccess: function(res) {
       tokens.access = res.accessToken;
       tokens.refresh = res.refreshToken;
-      tokens.role = res.role;
-      tokens.email = this._email;
       $('#signin .ui.form .message').remove();
       appendMessage({
         message: 'success signing in',
@@ -424,9 +437,9 @@ window.onload = () => {
     },
     beforeSend: function(settings) {
       var pw = $('#signin .ui.form input[name=password]').val();
-      this._email = $('#signin .ui.form input[name=email]').val();
+      var email = $('#signin .ui.form input[name=email]').val();
       settings.data = {
-        email: this._email,
+        email,
         password: pw ? CryptoJS.MD5(pw).toString() : pw,
       }
       return settings;

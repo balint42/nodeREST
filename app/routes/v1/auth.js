@@ -28,8 +28,7 @@ router.route('/auth')
     (req, res) => {
       if (req.isAuthenticated()) {
         res.status(200).json({
-          accessToken: utils.getAccessToken(req.user),
-          role: req.user.role,
+          accessToken: utils.getAccessToken(req.user)
         });
       }
     }
@@ -44,7 +43,6 @@ router.route('/auth')
         res.status(200).json({
           refreshToken: utils.getRefreshToken(req.user),
           accessToken: utils.getAccessToken(req.user),
-          role: req.user.role,
         });
       }
     }
