@@ -1,4 +1,16 @@
-# Expenses
+# nodeREST
+
+This is a demo for a full stack, nodeJS based single page application that implements RESTful APIs for user authentication and managment of the resources "user" and "expense". It showcases a simple app where users can sign-up, log-in and create "expense" records as well as view stats of their expenses over time.
+
+The user authentication is RESTful based on JWT tokens and implements 3 roles:
+
+- admins can CRUD on all resources
+- managers can CRUD on all users (except admin) and own expenses
+- users can CRUD on own expenses
+
+The front end is based on the great semantic UI and jQuery.
+
+The goal of this app is to show best practices and provide a boilerplate for a nodeJS based single page app that implements RESTful user authentication with roles and RESTful user & resource managment.
 
 ## Configuration
 For testing / dev environments copy the `test.env.tmpl` and `development.env.tmpl` files and rename them in `test.env` and `development.env` and adjust the values as needed. Then
