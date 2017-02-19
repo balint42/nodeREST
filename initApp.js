@@ -11,6 +11,7 @@ const uuid = require('node-uuid');
 const bodyParser = require('body-parser');
 const passport = require('passport');
 const bearerToken = require('express-bearer-token');
+const _ = require('lodash');
 
 // id to tag each process
 const PROCESS_ID_HEADER = 'X-Process-Id';
@@ -58,18 +59,16 @@ module.exports = function(app) {
     if (! req.accepts('json')) {
       const err = new VError('Not Acceptable');
       err.status = 406;
-      next(err);
-    } else {
-      next();
+      return next(err);
     }
+    next();
   });
 
   // init pure API routes
-  const versionRoot = `${config.root}/app/routes/v1`;
-  const routes = glob.sync(`${versionRoot}/*.js`);
-  routes.forEach((route) => {
-    app.use('/v1', require(route).router);
-  });
+  _.forEach(
+    glob.sync(`${config.root}/app/routes/v1/*.js`),
+    route => app.use('/v1', require(route).router)
+  );
 
   // route to health check
   app.use(require(`${config.root}/app/routes/health`).router);

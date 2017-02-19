@@ -4,6 +4,7 @@ const config = require('./config/config');
 const logger = require('./utils/logger');
 const utils = require('./utils/utils');
 const express = require('express');
+const initApp = require('./initApp');
 const mongoose = require('mongoose');
 const userModel = require('./app/models/userModel');
 
@@ -35,7 +36,7 @@ process.on('SIGINT', () => {
 });
 
 const app = express();
-require('./express')(app);
+initApp(app);
 
 logger.info('initialized', { config });
 
