@@ -1,19 +1,19 @@
 'use strict';
 
-// the node environment, can be "test", "development", "production"
-const env = process.env.NODE_ENV || 'development';
 const path = require('path');
 const md5 = require('md5');
 const rootPath = path.normalize(path.join(__dirname, '..'));
-const _ = require('lodash');
+const dotenv = require('dotenv');
+// the node environment, can be "test", "development", "production"
+const env = process.env.NODE_ENV || 'development';
 
 // load env vars from ".env" files
-require('dotenv').load({
+dotenv.load({
   path: `config/${env}.env`,
   silent: true,
 });
 
-const commonConfig = {
+module.exports = {
   env,
   root: rootPath,
   port: process.env.PORT || 3000,
@@ -46,11 +46,3 @@ const commonConfig = {
   tokenIssuer: 'expensesApp',
   passwordLength: 8,
 };
-
-const config = {
-  development: {},
-  test: {},
-  production: {},
-};
-
-module.exports = _.extend(commonConfig, config[env]);
