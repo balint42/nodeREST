@@ -15,6 +15,7 @@ describe('/v1/auth', function() {
     const refreshToken = utils.getRefreshToken({
       email: config.adminMail,
       role: config.roles.admin,
+      id: config.adminId,
     });
     const path1 = '/v1/auth';
     it(`PATCH ${path1} with refresh token should respond with valid access token`, done => {

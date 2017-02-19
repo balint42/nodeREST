@@ -28,7 +28,7 @@ router.route('/auth')
     (req, res) => {
       if (req.isAuthenticated()) {
         res.status(200).json({
-          accessToken: utils.getAccessToken(req.user)
+          accessToken: utils.getAccessToken(req.user),
         });
       }
     }

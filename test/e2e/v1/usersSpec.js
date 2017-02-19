@@ -2,6 +2,7 @@
 
 const supertest = require('supertest');
 const server = require('../../../server');
+const userModel = require('../../../app/models/userModel');
 const expect = require('chai').expect;
 const config = require('../../../config/config');
 const utils = require('../../../utils/utils');
@@ -12,7 +13,11 @@ describe('/v1/users', function() {
   this.timeout(5000);
   describe('valid requests', () => {
     const path1 = `/v1/users/${config.adminId}`;
-    const accessToken = utils.getAccessToken({ email: config.adminMail, role: config.roles.admin });
+    const accessToken = utils.getAccessToken({
+      email: config.adminMail,
+      role: config.roles.admin,
+      id: config.adminId,
+    });
     it(`GET ${path1} should respond with json`, done => {
       supertest(app)
         .get(path1)
@@ -95,6 +100,7 @@ describe('/v1/users', function() {
     const accessToken = utils.getAccessToken({
       email: config.adminMail,
       role: config.roles.admin,
+      id: config.adminId,
     });
     it(`GET ${path1} should respond with 401 without JWT token`, done => {
       supertest(app)
@@ -189,8 +195,23 @@ describe('/v1/users', function() {
     });
   });
   describe('invalid requests due to wrong role', () => {
+    before(() => {
+      return userModel.createUser({
+        id: '588928fbeab08838e0000000',
+        role: config.roles.user,
+        email: 'foobar',
+        password: '08838e5298eab08838eXyV4403!',
+      });
+    });
+    after(() => {
+      return userModel.deleteById('588928fbeab08838e0000000');
+    });
     const path1 = `/v1/users/${config.adminId}`;
-    const accessToken = utils.getAccessToken({ email: 'unknown', role: config.roles.user });
+    const accessToken = utils.getAccessToken({
+      email: 'unknown',
+      role: config.roles.user,
+      id: '588928fbeab08838e0000000',
+    });
     it(`GET ${path1} should respond with 403 with wrong JWT role`, done => {
       supertest(app)
         .get(path1)
@@ -210,7 +231,7 @@ describe('/v1/users', function() {
         .expect(403)
         .end(done);
     });
-    const path3 = '/v1/users/588928fbeab08838e5298906';
+    const path3 = `/v1/users/${config.adminId}`;
     it(`DELETE ${path3} should respond with 403 with wrong JWT role`, done => {
       supertest(app)
         .delete(path3)
